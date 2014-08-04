@@ -1,0 +1,39 @@
+module pp
+
+imports
+
+	libstratego-gpp
+	lib/runtime/tmpl/pp
+
+rules
+	
+  // pp-JavaLang-string =
+  //   prettyprint-Start
+  //   ; !V([], <id>)
+  //   ; box2text-string(|120)
+  //     
+  // pp-partial-JavaLang-string =
+  //   prettyprint-example
+  //   ; !V([], <id>)
+  //   ; box2text-string(|120)
+  //     
+  // pp-debug :
+  //   ast -> result
+  //   with
+  //      result := <pp-JavaLang-string> ast
+  //   <+ <bottomup(try(not(is-string); not(is-list); not(pp-JavaLang-string); debug(!"cannot pp ")))> ast
+  //   ;  result := ""
+  
+  pp-JavaLang-string =
+    !V([], <id>)
+    ; box2text-string(|120)
+      
+  pp-partial-JavaLang-string = fail
+      
+  pp-debug :
+    ast -> result
+    with
+       result := <pp-JavaLang-string> ast
+    <+ <bottomup(try(not(is-string); not(is-list); not(pp-JavaLang-string); debug(!"cannot pp ")))> ast
+    ;  result := ""
+

@@ -1,0 +1,13 @@
+module editor/JavaLang-Outliner
+
+imports
+  
+  include/JavaLang
+  lib/runtime/editor/outline-library
+  lib/runtime/editor/origins
+  editor/JavaLang-Outliner.generated
+
+rules
+  
+  to-outline-label = fail
+  

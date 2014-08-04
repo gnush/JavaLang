@@ -1,0 +1,31 @@
+module JavaLang.main
+
+imports
+  JavaLang-Colorer
+  JavaLang-Completions
+  JavaLang-Folding
+  JavaLang-Menus
+  JavaLang-Refactorings
+  JavaLang-References
+  JavaLang-Syntax
+  JavaLang-Views
+
+language General properties
+  
+  name:          JavaLang
+  id:            JavaLang
+  extends:       Root
+  
+  description:   "Spoofax-generated editor for the JavaLang language"
+  url:           http://strategoxt.org
+  
+  extensions:    java
+  table:         include/JavaLang.tbl
+  start symbols: Expr
+  
+  provider:      include/javalang.ctree
+  provider:      include/javalang-java.jar
+  
+  observer:      editor-analyze (multifile)
+  
+  on save:       editor-save

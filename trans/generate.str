@@ -1,0 +1,9 @@
+module generate
+
+imports
+	
+	include/JavaLang
+
+rules 
+
+foo = ?Lit(Deci(x)); !Lit(Hexa(x))
