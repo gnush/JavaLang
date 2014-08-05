@@ -14,7 +14,7 @@ rules
     // TODO: do in need to go over True and False constructors? nope, both have type boolean!
     generate-constraints: Bool(l)  -> (Boolean(), <empty-result>)
     generate-constraints: Char(l) -> (Char(), <empty-result>)
-    generate-constraints: Null() -> (MetaTypeVar(<newname> "T"), <empty-result>) //TODO: null is of any type?
+    generate-constraints: Null() -> (NullType(), <empty-result>) //TODO: null is of any type? it is not!
     
     generate-constraints: String(l) -> <fail> // TODO
     
