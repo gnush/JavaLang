@@ -1,0 +1,12 @@
+module JavaLang
+imports Common Java-15
+
+exports
+  context-free start-symbols
+    Expr
+
+%%   context-free syntax
+%%      -> Start {cons("Dummy")}
+%% 
+%%   context-free syntax
+%%     CONTENTCOMPLETE -> Start {cons("COMPLETION-Start")}

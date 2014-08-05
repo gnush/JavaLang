@@ -18,7 +18,6 @@ editor/java/trans
 editor/*.generated.*
 syntax/JavaLang*.generated.esv
 syntax/JavaLang.generated.pp
-syntax/*.sdf
 trans/*.pp.generated.str
 .settings/org.eclipse.jdt.core.prefs
 utils
