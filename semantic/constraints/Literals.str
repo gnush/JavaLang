@@ -4,19 +4,6 @@ imports
     include/JavaLang
     semantic/constraints/Base
 
-// context-free syntax
-//     NumType   -> PrimType  
-//     "boolean" -> PrimType  {cons("Boolean")}
-//     IntType   -> NumType   
-//     FloatType -> NumType   
-//     "byte"    -> IntType   {cons("Byte")}
-//     "short"   -> IntType   {cons("Short")}
-//     "int"     -> IntType   {cons("Int")}
-//     "long"    -> IntType   {cons("Long")}
-//     "char"    -> IntType   {cons("Char")}
-//     "float"   -> FloatType {cons("Float")}
-//     "double"  -> FloatType {cons("Double")}
-
 rules
     generate-constraints: Lit((t, c)) -> (t, c)
     
@@ -36,13 +23,13 @@ rules
      *
      * @type STRING -> Type
      */
-    // TODO: differ between byte and short. how?
+    // TODO: differ between byte and short. how? not possible!
     type-of-int-literal = if or(string-ends-with(|"l"), string-ends-with(|"L"))
                             then !Long()
                             else !Int()
                           end
     
-    // TODO: if a number ends without a char it's a double?
+    // TODO: if a number ends without a char it's a double? it is!
     /**
      * Determines the type of an String, assuming it comes from an FloatLiteral.
      *
@@ -52,32 +39,3 @@ rules
                             then !Float()
                             else !Double() //string ends with d, D or without a char
                           end
-
-
-
-// gibt es eine möglichkeit anhand der syntax zu bestimmen ob ein IntLiteral ein byte oder short value ist?
-// also long kann man ja durch das nachgestellte 'l' bzw. 'L' erkennen.
-// 
-// mal als beispiel
-// 1l
-// ist ja ein Long.
-// 
-// aber was ist jetzt
-// 1
-// ist das ein int, ein short oder ein byte?
-// und wenn es ein int ist, gibt es noch bestimmte "modifikatoren" die auf ein byte oder short hinweisen?
-// 
-// 
-// und wie sieht das bei floating point zahlen aus.
-// dort kann man ja 'f' bzw. 'd' der nachstellen, soweit so gut.
-// Wenn man allerdings nichts nachstellt, ist es dann ein float oder ein double?
-// 
-// 1.0f
-// ist ein float
-// 1.0d
-// ist ein double
-// 1.0
-// ist ein ..?
-// 
-// 
-// und wie sieht das mit 'null' aus, das kann quasi jeden typ annehmen?
