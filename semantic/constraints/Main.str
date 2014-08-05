@@ -1,0 +1,25 @@
+module Main
+
+imports
+    semantic/constraints/Base
+    semantic/constraints/Literals
+
+rules
+    /**
+     * Generates a Type and a Result Set  containing Constraints and
+     * Bindings for a Java Program. 
+     *
+     * @param Java AST
+     * @Type ATerm -> (Type, (List(Constraint), List(Binding), ...))
+     */
+    gen = bottomup(try(generate-constraints))
+    
+    /**
+     * Generates a Type and a Result Set  containing Constraints and
+     * Bindings for a Java Program. To be called with the bottomup stategy. 
+     *
+     * @internal
+     * @param Java AST
+     * @Type ATerm -> (Type, (List(Constraint), List(Binding), ...))
+     */
+    generate-constraints = fail

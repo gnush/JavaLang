@@ -1,1 +1,1 @@
-And(Lit(Deci("100")), Lit(Hexa("0x01")))
+(Long(), ([], []))

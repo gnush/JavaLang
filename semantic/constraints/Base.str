@@ -1,0 +1,14 @@
+module Base
+
+signature constructors
+    CEq : Type * Type * String -> Constraint
+    MetaTypeVar : String -> Type
+    NullType : Type // is this needed?
+
+rules
+    /**
+     * Provides an empty result set for constraint generation.
+     *
+     * @type (List(Constraint), List(Binding), ...)
+     */
+    empty-result = !([], [])

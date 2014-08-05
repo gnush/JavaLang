@@ -3,7 +3,9 @@ module generate
 imports
 	
 	include/JavaLang
+	semantic/constraints/Main
 
 rules 
 
-foo = ?Lit(Deci(x)); !Lit(Hexa(x))
+foo = fail
+foo = ?Lit(Deci(s)); !s; or(string-ends-with(|"L"), string-ends-with(|"l"))
