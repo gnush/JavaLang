@@ -52,3 +52,37 @@ rules
 //   will convert the integral operand to a String representing its value in decimal form,
 //   and then produce a newly created String that is the concatenation of the two strings
     // TODO: Plus is overloaded
+    
+    
+    
+
+// 4.2.4 Floating-Point Operations
+//  The Java programming language provides a number of operators that act on floating-point values:
+// 
+// The comparison operators, which result in a value of type boolean: 
+// The numerical comparison operators <, <=, >, and >= (§15.20.1) 
+// The numerical equality operators == and != (§15.21.1) 
+// The numerical operators, which result in a value of type float or double: 
+// The unary plus and minus operators + and - (§15.15.3, §15.15.4) 
+// The multiplicative operators *, /, and % (§15.17) 
+// The additive operators + and - (§15.18.2) 
+// The increment operator ++, both prefix (§15.15.1) and postfix (§15.14.2) 
+// The decrement operator --, both prefix (§15.15.2) and postfix (§15.14.3) 
+// The conditional operator ? : (§15.25) 
+// The cast operator, which can convert from a floating-point value to a value of any specified numeric type (§5.5, §15.16) 
+// The string concatenation operator + (§15.18.1), which,
+// when given a String operand and a floating-point operand, will convert the floating-point operand
+// to a String representing its value in decimal form (without information loss),
+// and then produce a newly created String by concatenating the two strings
+
+// 4.2.5 The boolean Type and boolean Values
+//  The boolean type represents a logical quantity with two possible values, indicated by the literals true and false (§3.10.3). The boolean operators are:
+// 
+// The relational operators == and != (§15.21.2) 
+// The logical-complement operator ! (§15.15.6) 
+// The logical operators &, ^, and | (§15.22.2) 
+// The conditional-and and conditional-or operators && (§15.23) and || (§15.24) 
+// The conditional operator ? : (§15.25) 
+// The string concatenation operator + (§15.18.1), which, when given a String operand and a boolean operand,
+// will convert the boolean operand to a String (either "true" or "false"),
+// and then produce a newly created String that is the concatenation of the two strings
