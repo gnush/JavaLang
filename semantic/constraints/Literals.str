@@ -11,25 +11,22 @@ rules
     generate-constraints: Hexa(s) -> (<type-of-int-literal> s, <empty-result>)
     generate-constraints: Octa(s) -> (<type-of-int-literal> s, <empty-result>)
     generate-constraints: Float(s) -> (<type-of-float-literal> s, <empty-result>)
-    // TODO: do in need to go over True and False constructors? nope, both have type boolean!
     generate-constraints: Bool(l)  -> (Boolean(), <empty-result>)
     generate-constraints: Char(l) -> (Char(), <empty-result>)
-    generate-constraints: Null() -> (NullType(), <empty-result>) //TODO: null is of any type? it is not!
+    generate-constraints: Null() -> (NullType(), <empty-result>) //TODO: null is of any type? it is not! but it can be of any reference type.
     
-    generate-constraints: String(l) -> <fail> // TODO
+    generate-constraints: String(l) -> <fail> // TODO: String Object -> Reference Type
     
     /**
      * Determines the type of an String, assuming it comes from an IntLiteral.
      *
      * @type STRING -> Type
      */
-    // TODO: differ between byte and short. how? not possible!
     type-of-int-literal = if or(string-ends-with(|"l"), string-ends-with(|"L"))
                             then !Long()
                             else !Int()
                           end
     
-    // TODO: if a number ends without a char it's a double? it is!
     /**
      * Determines the type of an String, assuming it comes from an FloatLiteral.
      *
