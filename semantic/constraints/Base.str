@@ -19,7 +19,7 @@ rules
     /**
      * Provides a list with Primitive Types for numericals.
      */
-    numerical-types = ![Byte(), Short(), Int(), Long(), Float(), Double()]
+    numerical-types = ![Byte(), Short(), Int(), Long(), Char(), Float(), Double()]
     
     /**
      * Determines whether a given type is a numerical type or not.
