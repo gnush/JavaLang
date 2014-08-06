@@ -1,0 +1,54 @@
+module constraints/Operators
+
+imports
+    include/JavaLang
+    semantic/constraints/Base
+
+rules
+//     4.2.2 Integer Operations
+//  The Java programming language provides a number of operators that act on integral values:
+
+// The comparison operators, which result in a value of type boolean: 
+    // The numerical comparison operators <, <=, >, and >= (§15.20.1) 
+    generate-constraints: Gt((t1, c1), (t2, c2))   -> <fail>
+    generate-constraints: GtEq((t1, c1), (t2, c2)) -> <fail>
+    generate-constraints: Lt((t1, c1), (t2, c2))   -> <fail>
+    generate-constraints: LtEq((t1, c1), (t2, c2)) -> <fail>
+    // The numerical equality operators == and != (§15.21.1)    
+    generate-constraints: Eq((t1, c1), (t2, c2))    -> <fail>
+    generate-constraints: NotEq((t1, c1), (t2, c2)) -> <fail>
+// The numerical operators, which result in a value of type int or long:
+    // The unary plus and minus operators + and - (§15.15.3, §15.15.4)    
+    generate-constraints: Plus((t, c))  -> <fail>
+    generate-constraints: Minus((t, c)) -> <fail>
+    // The multiplicative operators *, /, and % (§15.17)    
+    generate-constraints: Mul((t1, c1), (t2, c2))    -> <fail>
+    generate-constraints: Div((t1, c1), (t2, c2))    -> <fail>
+    generate-constraints: Remain((t1, c1), (t2, c2)) -> <fail>
+    // The additive operators + and - (§15.18) 
+    generate-constraints: Plus((t1, c1), (t2, c2))  -> <fail>
+    generate-constraints: Minus((t1, c1), (t2, c2)) -> <fail>
+    // The increment operator ++, both prefix (§15.15.1) and postfix (§15.14.2)
+    generate-constraints: PreIncr((t, c))  -> <fail>
+    generate-constraints: PostIncr((t, c)) -> <fail>
+	// The decrement operator --, both prefix (§15.15.2) and postfix (§15.14.3)
+	generate-constraints: PreDecr((t, c))  -> <fail>
+    generate-constraints: PostDecr((t, c)) -> <fail>
+	// The signed and unsigned shift operators <<, >>, and >>> (§15.19)
+	generate-constraints: LeftShift((t1, c1), (t2, c2))   -> <fail>
+	generate-constraints: RightShift((t1, c1), (t2, c2))  -> <fail>
+	generate-constraints: URightShift((t1, c1), (t2, c2)) -> <fail>
+	// The bitwise complement operator ~ (§15.15.5)
+	generate-constraints: Complement((t, c)) -> <fail>
+	// The integer bitwise operators &, |, and ^ (§15.22.1)
+	generate-constraints: And((t1, c1), (t2, c2))   -> <fail>
+	generate-constraints: Or((t1, c1), (t2, c2))    -> <fail>
+	generate-constraints: ExcOr((t1, c1), (t2, c2)) -> <fail>
+// The conditional operator ? : (§15.25) 
+	generate-constraints: Cond((t1, c1), (t2, c2), (t3, c3)) -> <fail>
+// The cast operator, which can convert from an integral value to a value of any specified numeric type (§5.5, §15.16)
+	generate-constraints: CastPrim((t1, c1), (t2, c2)) -> <fail>
+// The string concatenation operator + (§15.18.1), which, when given a String operand and an integral operand,
+//   will convert the integral operand to a String representing its value in decimal form,
+//   and then produce a newly created String that is the concatenation of the two strings
+    // TODO: Plus is overloaded

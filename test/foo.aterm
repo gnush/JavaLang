@@ -1,1 +1,1 @@
-(Long(), ([], []))
+Plus(Lit(String([])), Lit(Deci("1")))
