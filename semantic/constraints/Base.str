@@ -1,5 +1,8 @@
 module Base
 
+imports
+    include/JavaLang
+
 signature constructors
     CEq : Type * Type * String -> Constraint
     MetaTypeVar : String -> Type
@@ -12,3 +15,13 @@ rules
      * @type (List(Constraint), List(Binding), ...)
      */
     empty-result = !([], [])
+    
+    /**
+     * Provides a list with Primitive Types for numericals.
+     */
+    numerical-types = ![Byte(), Short(), Int(), Long(), Float(), Double()]
+    
+    /**
+     * Determines whether a given type is a numerical type or not.
+     */
+    is-numerical-type: t -> <elem> (t, <numerical-types>)
