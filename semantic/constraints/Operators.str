@@ -10,7 +10,9 @@ rules
 
 // The comparison operators, which result in a value of type boolean: 
     // The numerical comparison operators <, <=, >, and >= (§15.20.1) 
-    generate-constraints: Gt((t1, c1), (t2, c2))   -> <fail>
+    generate-constraints: Gt((t1, c1), (t2, c2))   -> (Boolean(), cRes)
+        where cs   := [CWidenablePrim(t1, t2, "")];
+              cRes := (cs, [])
     generate-constraints: GtEq((t1, c1), (t2, c2)) -> <fail>
     generate-constraints: Lt((t1, c1), (t2, c2))   -> <fail>
     generate-constraints: LtEq((t1, c1), (t2, c2)) -> <fail>

@@ -13,7 +13,7 @@ rules
     generate-constraints: Float(s) -> (<type-of-float-literal> s, <empty-result>)
     generate-constraints: Bool(l)  -> (Boolean(), <empty-result>)
     generate-constraints: Char(l) -> (Char(), <empty-result>)
-    generate-constraints: Null() -> (NullType(), <empty-result>) //TODO: null is of any type? it is not! but it can be of any reference type.
+    generate-constraints: Null() -> (RefTypeVar(<newname> ("RefType")), <empty-result>)
     
     generate-constraints: String(l) -> <fail> // TODO: String Object -> Reference Type
     
