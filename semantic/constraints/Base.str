@@ -55,4 +55,33 @@ rules
     widen-prim: (Long(), Double()) -> <id>
     widen-prim: (Float(), Double()) -> <id>
     
-    merge-result-sets = fail
+    /**
+     * Merges multiple result sets
+     *
+     * @param List of result sets to be merged
+     * @param List of new constraints
+     * 
+     * @type (List(result-set), List(Constraint)) -> result-set 
+     */
+    merge-result-sets = empty-result
+    
+//     // list, list -> resultSet
+//     mergeUnify: (c, cs) -> (constraints', bindings', mgu, errs)
+//         where bindings    := <filter-bindings; flatten-list; bUnion> c;
+//               constraints := <conc> (cs, <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> c);
+//               errors      := <filter-errs; flatten-list> c;
+//               (constraints', mgu, errs) := <unify'> (constraints, [], [], errors); // (constraints, [], <filter-mgu; flatten-list> c, [])
+//               bindings'   := <map(\ (x, t) -> (x, <app_mgu> (t, mgu)) \)> bindings
+// 
+//     // list, list, (var, type) -> resultSet
+//     mergeUnify: (c, cs, (x, t)) -> (constraints', bindings'', mgu, errs)
+//         where cNew := ([], [(x, t)], [], []);
+//               c'   := [cNew|c];
+//               bindings    := <filter-bindings; flatten-list; bUnion> c';
+//               bindings'   := <remove-all(?(x, _))> bindings;
+//               constraints := <conc> (cs, <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> c');
+//               errors      := <filter-errs; flatten-list> c';
+//               (constraints', mgu, errs) := <unify'> (constraints, [], [], errors);
+//               bindings''  := <map(\ (x, t) -> (x, <app_mgu> (t, mgu)) \)> bindings'
+//               
+//     mergeUnify = debug(!"mergeUnify: "); fail
