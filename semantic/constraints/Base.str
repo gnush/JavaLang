@@ -26,11 +26,15 @@ rules
      * Provides a list with Primitive Types for numericals.
      */
     numerical-types = ![Byte(), Short(), Int(), Long(), Char(), Float(), Double()]
+    integral-types = ![Byte(), Short(), Int(), Long(), Char()]
+    float-types = ![Float(), Double()]
     
     /**
      * Determines whether a given type is a numerical type or not.
      */
     is-numerical-type: t -> <elem> (t, <numerical-types>)
+    is-integral-type: t -> <elem> (t, <integral-types>)
+    is-float-type: t -> <elem> (t, <float-types>)
     
     // widen primitive types (A Formal Type System for Java, Fig. 14)
     // TODO: what about chars?
@@ -50,3 +54,5 @@ rules
     widen-prim: (Long(), Float()) -> <id>
     widen-prim: (Long(), Double()) -> <id>
     widen-prim: (Float(), Double()) -> <id>
+    
+    merge-result-sets = fail
