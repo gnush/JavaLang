@@ -39,8 +39,18 @@ rules
               cRes := <merge-result-sets> ([c1, c2], cs)
 // The numerical operators, which result in a value of type int or long:
     // The unary plus and minus operators + and - (§15.15.3, §15.15.4)    
-    generate-constraints: Plus((t, c))  -> <fail>
-    generate-constraints: Minus((t, c)) -> <fail>
+    generate-constraints: Plus((t, c))  -> (tRes, cRes)
+        where tRes := PrimTypeVar(<newname> "T"); 
+              cs   := [CSortOf(t, <numerical-types>, "unary plus"),
+                       CEq(t, tRes, "unary plus"),
+                       CSortOf(tRes, [Int(), Long()], "unary plus")];
+              cRes := <merge-result-sets> ([c], cs)
+    generate-constraints: Minus((t, c)) -> (tRes, cRes)
+        where tRes := PrimTypeVar(<newname> "T"); 
+              cs   := [CSortOf(t, <numerical-types>, "unary minus"),
+                       CEq(t, tRes, "unary minus"),
+                       CSortOf(tRes, [Int(), Long()], "unary minus")];
+              cRes := <merge-result-sets> ([c], cs)
     // The multiplicative operators *, /, and % (§15.17)    
     generate-constraints: Mul((t1, c1), (t2, c2))    -> <fail>
     generate-constraints: Div((t1, c1), (t2, c2))    -> <fail>
