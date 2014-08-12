@@ -30,6 +30,7 @@ rules
     numerical-types = ![Byte(), Short(), Int(), Long(), Char(), Float(), Double()]
     integral-types = ![Byte(), Short(), Int(), Long(), Char()]
     float-types = ![Float(), Double()]
+    numerical-operator-return-types = ![Int(), Long(), Float(), Double()]
     
     /**
      * Determines whether a given type is a primitive type or not.

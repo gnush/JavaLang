@@ -43,16 +43,22 @@ rules
         where tRes := PrimTypeVar(<newname> "T"); 
               cs   := [CSortOf(t, <numerical-types>, "unary plus"),
                        CEq(t, tRes, "unary plus"),
-                       CSortOf(tRes, [Int(), Long()], "unary plus")];
+                       CSortOf(tRes, <numerical-operator-return-types>, "unary plus")];
               cRes := <merge-result-sets> ([c], cs)
     generate-constraints: Minus((t, c)) -> (tRes, cRes)
         where tRes := PrimTypeVar(<newname> "T"); 
               cs   := [CSortOf(t, <numerical-types>, "unary minus"),
                        CEq(t, tRes, "unary minus"),
-                       CSortOf(tRes, [Int(), Long()], "unary minus")];
+                       CSortOf(tRes, <numerical-operator-return-types>, "unary minus")];
               cRes := <merge-result-sets> ([c], cs)
     // The multiplicative operators *, /, and % (§15.17)    
-    generate-constraints: Mul((t1, c1), (t2, c2))    -> <fail>
+    generate-constraints: Mul((t1, c1), (t2, c2))    -> (tRes, cRes)
+        where tRes := PrimTypeVar(<newname> "T");
+              cs   := [CWidenablePrim(t1, t2, "multiplication"),
+                       CSortOf(t1, <numerical-types>, "multiplication"),
+                       CSortOf(t2, <numerical-types>, "multiplication"),
+                       CSortOf(tRes, <numerical-operator-return-types>, "multiplication")]; // TODO: tRes must be equal to the widened type of t1 and t2
+              cRes := <merge-result-sets> ([c1, c2], cs)
     generate-constraints: Div((t1, c1), (t2, c2))    -> <fail>
     generate-constraints: Remain((t1, c1), (t2, c2)) -> <fail>
     // The additive operators + and - (§15.18) 
