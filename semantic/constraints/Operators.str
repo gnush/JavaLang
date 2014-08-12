@@ -31,8 +31,12 @@ rules
                        CSortOf(t2, <numerical-types>, "less or equal")];
               cRes := <merge-result-sets> ([c1, c2], cs)
     // The numerical equality operators == and != (§15.21.1)    
-    generate-constraints: Eq((t1, c1), (t2, c2))    -> <fail>
-    generate-constraints: NotEq((t1, c1), (t2, c2)) -> <fail>
+    generate-constraints: Eq((t1, c1), (t2, c2))    -> (Boolean(), cRes)
+        where cs   := [CWidenablePrim(t1, t2, "equals")];
+              cRes := <merge-result-sets> ([c1, c2], cs)
+    generate-constraints: NotEq((t1, c1), (t2, c2)) -> (Boolean(), cRes)
+        where cs   := [CWidenablePrim(t1, t2, "equals not")];
+              cRes := <merge-result-sets> ([c1, c2], cs)
 // The numerical operators, which result in a value of type int or long:
     // The unary plus and minus operators + and - (§15.15.3, §15.15.4)    
     generate-constraints: Plus((t, c))  -> <fail>
