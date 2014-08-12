@@ -11,11 +11,25 @@ rules
 // The comparison operators, which result in a value of type boolean: 
     // The numerical comparison operators <, <=, >, and >= (§15.20.1) 
     generate-constraints: Gt((t1, c1), (t2, c2))   -> (Boolean(), cRes)
-        where cs   := [CWidenablePrim(t1, t2, "")];
-              cRes := (cs, [])
-    generate-constraints: GtEq((t1, c1), (t2, c2)) -> <fail>
-    generate-constraints: Lt((t1, c1), (t2, c2))   -> <fail>
-    generate-constraints: LtEq((t1, c1), (t2, c2)) -> <fail>
+        where cs   := [CWidenablePrim(t1, t2, "greater"),
+                       CSortOf(t1, <numerical-types>, "greater"),
+                       CSortOf(t2, <numerical-types>, "greater")];
+              cRes := <merge-result-sets> ([c1, c2], cs)
+    generate-constraints: GtEq((t1, c1), (t2, c2)) -> (Boolean(), cRes)
+        where cs   := [CWidenablePrim(t1, t2, "greater or equal"),
+                       CSortOf(t1, <numerical-types>, "greater or equal"),
+                       CSortOf(t2, <numerical-types>, "greater or equal")];
+              cRes := <merge-result-sets> ([c1, c2], cs)
+    generate-constraints: Lt((t1, c1), (t2, c2))   -> (Boolean(), cRes)
+        where cs   := [CWidenablePrim(t1, t2, "less"),
+                       CSortOf(t1, <numerical-types>, "less"),
+                       CSortOf(t2, <numerical-types>, "less")];
+              cRes := <merge-result-sets> ([c1, c2], cs)
+    generate-constraints: LtEq((t1, c1), (t2, c2)) -> (Boolean(), cRes)
+        where cs   := [CWidenablePrim(t1, t2, "less or equal"),
+                       CSortOf(t1, <numerical-types>, "less or equal"),
+                       CSortOf(t2, <numerical-types>, "less or equal")];
+              cRes := <merge-result-sets> ([c1, c2], cs)
     // The numerical equality operators == and != (§15.21.1)    
     generate-constraints: Eq((t1, c1), (t2, c2))    -> <fail>
     generate-constraints: NotEq((t1, c1), (t2, c2)) -> <fail>

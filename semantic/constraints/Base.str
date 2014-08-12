@@ -8,7 +8,7 @@ signature constructors
     // CSubClass : Type * Type * String -> Constraint
     // CSubIFace : Type * Type * String -> Constraint
     CWidenablePrim : Type * Type * String -> Constraint // primitive type widening is possible (commutative)
-    CSortOf : Type * List(Type) -> Constraint           // lhs Type must be one of rhs Types
+    CSortOf : Type * List(Type) * STRING -> Constraint           // lhs Type must be one of rhs Types
     MetaTypeVar : String -> Type
     PrimTypeVar : String -> Type                        // primitive type var
     RefTypeVar : String -> Type                         // reference type var
@@ -18,20 +18,23 @@ rules
     /**
      * Provides an empty result set for constraint generation.
      *
-     * @type (List(Constraint), List(Binding), ...)
+     *        constraints, bindings, mgu, errornous constraints
+     * @type (List(Constraint), List(Binding), List((STRING, Type)), List(Constraints))
      */
-    empty-result = !([], [])
+    empty-result = !([], [], [], [])
     
     /**
-     * Provides a list with Primitive Types for numericals.
+     * Provides a list with primitive Types
      */
+    primitive-types = ![Byte(), Short(), Int(), Long(), Char(), Float(), Double(), Boolean()]
     numerical-types = ![Byte(), Short(), Int(), Long(), Char(), Float(), Double()]
     integral-types = ![Byte(), Short(), Int(), Long(), Char()]
     float-types = ![Float(), Double()]
     
     /**
-     * Determines whether a given type is a numerical type or not.
+     * Determines whether a given type is a primitive type or not.
      */
+    is-primitive-type: t -> <elem> (t, <primitive-types>)
     is-numerical-type: t -> <elem> (t, <numerical-types>)
     is-integral-type: t -> <elem> (t, <integral-types>)
     is-float-type: t -> <elem> (t, <float-types>)
@@ -63,7 +66,10 @@ rules
      * 
      * @type (List(result-set), List(Constraint)) -> result-set 
      */
-    merge-result-sets = empty-result
+    merge-result-sets: (results, newConstraints) -> (constraints, bindings, [], errors)
+        where bindings    := <filter-bindings; flatten-list> results;
+              constraints := <conc> (newConstraints, <filter-constraints; flatten-list> results);
+              errors      := <filter-errors; flatten-list> results
     
 //     // list, list -> resultSet
 //     mergeUnify: (c, cs) -> (constraints', bindings', mgu, errs)
@@ -85,3 +91,12 @@ rules
 //               bindings''  := <map(\ (x, t) -> (x, <app_mgu> (t, mgu)) \)> bindings'
 //               
 //     mergeUnify = debug(!"mergeUnify: "); fail
+
+    constraints: (cs, _, _, _) -> cs
+    bindings: (_, bs, _, _)    -> bs
+    mgu: (_, _, mgu, _)        -> mgu
+    errors: (_, _, _, errs)    -> errs
+    filter-bindings = map(bindings)
+    filter-constraints = map(constraints)
+    filter-mgu = map(mgu)
+    filter-errors = map(errors)
