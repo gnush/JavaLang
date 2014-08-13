@@ -90,7 +90,7 @@ rules
               cRes := <merge-result-sets> ([c1, c2], cs)
     generate-constraints: Minus((t1, c1), (t2, c2)) -> (tRes, cRes)
         where tRes := PrimTypeVar(<newname> "T");
-              node := "binary plus";
+              node := "binary minus";
               cs   := [CWidenablePrim(t1, t2, node),
                        CWidenedEq(tRes, t1, t2, node),
                        CSortOf(t1, <numerical-types>, node),
