@@ -209,7 +209,7 @@ rules
                        CEq(Boolean(), t2, node)];
               cRes := <merge-result-sets> ([c1, c2], cs)
     generate-constraints: LazyOr((t1, c1), (t2, c2)) -> (Boolean(), cRes)
-        where node := "logical and";
+        where node := "logical or";
               cs   := [CEq(Boolean(), t1, node),
                        CEq(Boolean(), t2, node)];
               cRes := <merge-result-sets> ([c1, c2], cs)
