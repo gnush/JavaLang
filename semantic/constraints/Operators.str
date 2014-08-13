@@ -1,5 +1,7 @@
 module constraints/Operators
 
+// TODO: error part of constraints as extra var, like in plus
+
 imports
     include/JavaLang
     semantic/constraints/Base
@@ -52,24 +54,79 @@ rules
                        CSortOf(tRes, <numerical-operator-return-types>, "unary minus")];
               cRes := <merge-result-sets> ([c], cs)
     // The multiplicative operators *, /, and % (§15.17)    
-    generate-constraints: Mul((t1, c1), (t2, c2))    -> (tRes, cRes)
+    generate-constraints: Mul((t1, c1), (t2, c2)) -> (tRes, cRes)
         where tRes := PrimTypeVar(<newname> "T");
               cs   := [CWidenablePrim(t1, t2, "multiplication"),
                        CSortOf(t1, <numerical-types>, "multiplication"),
                        CSortOf(t2, <numerical-types>, "multiplication"),
-                       CSortOf(tRes, <numerical-operator-return-types>, "multiplication")]; // TODO: tRes must be equal to the widened type of t1 and t2
+                       CSortOf(tRes, <numerical-operator-return-types>, "multiplication"),
+                       CWidenedEq(tRes, t1, t2, "multiplication")]; // TODO: tRes must be equal to the widened type of t1 and t2
               cRes := <merge-result-sets> ([c1, c2], cs)
-    generate-constraints: Div((t1, c1), (t2, c2))    -> <fail>
-    generate-constraints: Remain((t1, c1), (t2, c2)) -> <fail>
+    generate-constraints: Div((t1, c1), (t2, c2)) -> (tRes, cRes)
+        where tRes := PrimTypeVar(<newname> "T");
+              cs   := [CWidenablePrim(t1, t2, "division"),
+                       CSortOf(t1, <numerical-types>, "division"),
+                       CSortOf(t2, <numerical-types>, "division"),
+                       CSortOf(tRes, <numerical-operator-return-types>, "division"),
+                       CWidenedEq(tRes, t1, t2, "division")]; // TODO: tRes must be equal to the widened type of t1 and t2
+              cRes := <merge-result-sets> ([c1, c2], cs)
+    generate-constraints: Remain((t1, c1), (t2, c2)) -> (tRes, cRes)
+        where tRes := PrimTypeVar(<newname> "T");
+              cs   := [CWidenablePrim(t1, t2, "remainder"),
+                       CSortOf(t1, <numerical-types>, "remainder"),
+                       CSortOf(t2, <numerical-types>, "remainder"),
+                       CSortOf(tRes, <numerical-operator-return-types>, "remainder"),
+                       CWidenedEq(tRes, t1, t2, "remainder")]; // TODO: tRes must be equal to the widened type of t1 and t2
+              cRes := <merge-result-sets> ([c1, c2], cs)
     // The additive operators + and - (§15.18) 
-    generate-constraints: Plus((t1, c1), (t2, c2))  -> <fail>
-    generate-constraints: Minus((t1, c1), (t2, c2)) -> <fail>
+    generate-constraints: Plus((t1, c1), (t2, c2))  -> (tRes, cRes) // TODO: String
+        where tRes := PrimTypeVar(<newname> "T");
+              node := "binary plus";
+              cs   := [CWidenablePrim(t1, t2, node),
+                       CWidenedEq(tRes, t1, t2, node),
+                       CSortOf(t1, <numerical-types>, node),
+                       CSortOf(t2, <numerical-types>, node),
+                       CSortOf(tRes, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c1, c2], cs)
+    generate-constraints: Minus((t1, c1), (t2, c2)) -> (tRes, cRes)
+        where tRes := PrimTypeVar(<newname> "T");
+              node := "binary plus";
+              cs   := [CWidenablePrim(t1, t2, node),
+                       CWidenedEq(tRes, t1, t2, node),
+                       CSortOf(t1, <numerical-types>, node),
+                       CSortOf(t2, <numerical-types>, node),
+                       CSortOf(tRes, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c1, c2], cs)
     // The increment operator ++, both prefix (§15.15.1) and postfix (§15.14.2)
-    generate-constraints: PreIncr((t, c))  -> <fail>
-    generate-constraints: PostIncr((t, c)) -> <fail>
+    generate-constraints: PreIncr((t, c))  -> (tRes, cRes)
+        where node := "pre increment";
+              tRes := PrimTypeVar(<newname> "T");
+              cs   := [CEq(t, tRes, node),
+                       CSortOf(t, <numerical-types>, node),
+                       CSortOf(tRes, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c], cs)
+    generate-constraints: PostIncr((t, c)) -> (tRes, cRes)
+        where node := "post increment";
+              tRes := PrimTypeVar(<newname> "T");
+              cs   := [CEq(t, tRes, node),
+                       CSortOf(t, <numerical-types>, node),
+                       CSortOf(tRes, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c], cs)
 	// The decrement operator --, both prefix (§15.15.2) and postfix (§15.14.3)
-	generate-constraints: PreDecr((t, c))  -> <fail>
-    generate-constraints: PostDecr((t, c)) -> <fail>
+	generate-constraints: PreDecr((t, c))  -> (tRes, cRes)
+        where node := "pre decrement";
+              tRes := PrimTypeVar(<newname> "T");
+              cs   := [CEq(t, tRes, node),
+                       CSortOf(t, <numerical-types>, node),
+                       CSortOf(tRes, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c], cs)
+    generate-constraints: PostDecr((t, c)) -> (tRes, cRes)
+        where node := "post decrement";
+              tRes := PrimTypeVar(<newname> "T");
+              cs   := [CEq(t, tRes, node),
+                       CSortOf(t, <numerical-types>, node),
+                       CSortOf(tRes, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c], cs)
 	// The signed and unsigned shift operators <<, >>, and >>> (§15.19)
 	generate-constraints: LeftShift((t1, c1), (t2, c2))   -> <fail>
 	generate-constraints: RightShift((t1, c1), (t2, c2))  -> <fail>

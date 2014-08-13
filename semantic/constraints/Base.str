@@ -8,6 +8,7 @@ signature constructors
     // CSubClass : Type * Type * String -> Constraint
     // CSubIFace : Type * Type * String -> Constraint
     CWidenablePrim : Type * Type * String -> Constraint // primitive type widening is possible (commutative)
+    CWidenedEq : Type * Type * Type * String -> Constraint // t1 must be equal to the widening of t1 and t2
     CSortOf : Type * List(Type) * STRING -> Constraint           // lhs Type must be one of rhs Types
     MetaTypeVar : String -> Type
     PrimTypeVar : String -> Type                        // primitive type var
