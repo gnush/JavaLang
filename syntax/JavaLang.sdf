@@ -1,5 +1,5 @@
 module JavaLang
-imports Common Java-15
+imports Java-15
 
 exports
   context-free start-symbols
