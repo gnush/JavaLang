@@ -1,5 +1,8 @@
 module constraints/Operators
 
+// TODO:
+// - error part of constraints as extra var, like in plus
+
 imports
     include/JavaLang
     semantic/constraints/Base
@@ -10,48 +13,212 @@ rules
 
 // The comparison operators, which result in a value of type boolean: 
     // The numerical comparison operators <, <=, >, and >= (§15.20.1) 
-    generate-constraints: Gt((t1, c1), (t2, c2))   -> <fail>
-    generate-constraints: GtEq((t1, c1), (t2, c2)) -> <fail>
-    generate-constraints: Lt((t1, c1), (t2, c2))   -> <fail>
-    generate-constraints: LtEq((t1, c1), (t2, c2)) -> <fail>
+    generate-constraints: Gt((t1, c1), (t2, c2))   -> (Boolean(), cRes)
+        where cs   := [CWidenablePrim(t1, t2, "greater"),
+                       CSortOf(t1, <numerical-types>, "greater"),
+                       CSortOf(t2, <numerical-types>, "greater")];
+              cRes := <merge-result-sets> ([c1, c2], cs)
+    generate-constraints: GtEq((t1, c1), (t2, c2)) -> (Boolean(), cRes)
+        where cs   := [CWidenablePrim(t1, t2, "greater or equal"),
+                       CSortOf(t1, <numerical-types>, "greater or equal"),
+                       CSortOf(t2, <numerical-types>, "greater or equal")];
+              cRes := <merge-result-sets> ([c1, c2], cs)
+    generate-constraints: Lt((t1, c1), (t2, c2))   -> (Boolean(), cRes)
+        where cs   := [CWidenablePrim(t1, t2, "less"),
+                       CSortOf(t1, <numerical-types>, "less"),
+                       CSortOf(t2, <numerical-types>, "less")];
+              cRes := <merge-result-sets> ([c1, c2], cs)
+    generate-constraints: LtEq((t1, c1), (t2, c2)) -> (Boolean(), cRes)
+        where cs   := [CWidenablePrim(t1, t2, "less or equal"),
+                       CSortOf(t1, <numerical-types>, "less or equal"),
+                       CSortOf(t2, <numerical-types>, "less or equal")];
+              cRes := <merge-result-sets> ([c1, c2], cs)
     // The numerical equality operators == and != (§15.21.1)    
-    generate-constraints: Eq((t1, c1), (t2, c2))    -> <fail>
-    generate-constraints: NotEq((t1, c1), (t2, c2)) -> <fail>
+    generate-constraints: Eq((t1, c1), (t2, c2))    -> (Boolean(), cRes)
+        where cs   := [CWidenablePrim(t1, t2, "equals")];
+              cRes := <merge-result-sets> ([c1, c2], cs)
+    generate-constraints: NotEq((t1, c1), (t2, c2)) -> (Boolean(), cRes)
+        where cs   := [CWidenablePrim(t1, t2, "equals not")];
+              cRes := <merge-result-sets> ([c1, c2], cs)
 // The numerical operators, which result in a value of type int or long:
     // The unary plus and minus operators + and - (§15.15.3, §15.15.4)    
-    generate-constraints: Plus((t, c))  -> <fail>
-    generate-constraints: Minus((t, c)) -> <fail>
+    generate-constraints: Plus((t, c))  -> (tRes, cRes)
+        where tRes := PrimTypeVar(<newname> "T"); 
+              cs   := [CSortOf(t, <numerical-types>, "unary plus"),
+                       CEq(t, tRes, "unary plus"), // TODO: type widening to int if t is 'below'
+                       CSortOf(tRes, <numerical-operator-return-types>, "unary plus")];
+              cRes := <merge-result-sets> ([c], cs)
+    generate-constraints: Minus((t, c)) -> (tRes, cRes)
+        where tRes := PrimTypeVar(<newname> "T"); 
+              cs   := [CSortOf(t, <numerical-types>, "unary minus"),
+                       CEq(t, tRes, "unary minus"),
+                       CSortOf(tRes, <numerical-operator-return-types>, "unary minus")];
+              cRes := <merge-result-sets> ([c], cs)
     // The multiplicative operators *, /, and % (§15.17)    
-    generate-constraints: Mul((t1, c1), (t2, c2))    -> <fail>
-    generate-constraints: Div((t1, c1), (t2, c2))    -> <fail>
-    generate-constraints: Remain((t1, c1), (t2, c2)) -> <fail>
+    generate-constraints: Mul((t1, c1), (t2, c2)) -> (tRes, cRes)
+        where tRes := PrimTypeVar(<newname> "T");
+              cs   := [CWidenablePrim(t1, t2, "multiplication"),
+                       CSortOf(t1, <numerical-types>, "multiplication"),
+                       CSortOf(t2, <numerical-types>, "multiplication"),
+                       CSortOf(tRes, <numerical-operator-return-types>, "multiplication"),
+                       CWidenedEq(tRes, t1, t2, "multiplication")]; // TODO: tRes must be equal to the widened type of t1 and t2
+              cRes := <merge-result-sets> ([c1, c2], cs)
+    generate-constraints: Div((t1, c1), (t2, c2)) -> (tRes, cRes)
+        where tRes := PrimTypeVar(<newname> "T");
+              cs   := [CWidenablePrim(t1, t2, "division"),
+                       CSortOf(t1, <numerical-types>, "division"),
+                       CSortOf(t2, <numerical-types>, "division"),
+                       CSortOf(tRes, <numerical-operator-return-types>, "division"),
+                       CWidenedEq(tRes, t1, t2, "division")]; // TODO: tRes must be equal to the widened type of t1 and t2
+              cRes := <merge-result-sets> ([c1, c2], cs)
+    generate-constraints: Remain((t1, c1), (t2, c2)) -> (tRes, cRes)
+        where tRes := PrimTypeVar(<newname> "T");
+              cs   := [CWidenablePrim(t1, t2, "remainder"),
+                       CSortOf(t1, <numerical-types>, "remainder"),
+                       CSortOf(t2, <numerical-types>, "remainder"),
+                       CSortOf(tRes, <numerical-operator-return-types>, "remainder"),
+                       CWidenedEq(tRes, t1, t2, "remainder")]; // TODO: tRes must be equal to the widened type of t1 and t2
+              cRes := <merge-result-sets> ([c1, c2], cs)
     // The additive operators + and - (§15.18) 
-    generate-constraints: Plus((t1, c1), (t2, c2))  -> <fail>
-    generate-constraints: Minus((t1, c1), (t2, c2)) -> <fail>
+    generate-constraints: Plus((t1, c1), (t2, c2))  -> (tRes, cRes) // TODO: String
+        where tRes := PrimTypeVar(<newname> "T");
+              node := "binary plus";
+              cs   := [CWidenablePrim(t1, t2, node),
+                       CWidenedEq(tRes, t1, t2, node),
+                       CSortOf(t1, <numerical-types>, node),
+                       CSortOf(t2, <numerical-types>, node),
+                       CSortOf(tRes, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c1, c2], cs)
+    generate-constraints: Minus((t1, c1), (t2, c2)) -> (tRes, cRes)
+        where tRes := PrimTypeVar(<newname> "T");
+              node := "binary minus";
+              cs   := [CWidenablePrim(t1, t2, node),
+                       CWidenedEq(tRes, t1, t2, node),
+                       CSortOf(t1, <numerical-types>, node),
+                       CSortOf(t2, <numerical-types>, node),
+                       CSortOf(tRes, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c1, c2], cs)
     // The increment operator ++, both prefix (§15.15.1) and postfix (§15.14.2)
-    generate-constraints: PreIncr((t, c))  -> <fail>
-    generate-constraints: PostIncr((t, c)) -> <fail>
+    generate-constraints: PreIncr((t, c))  -> (tRes, cRes)
+        where node := "pre increment";
+              tRes := PrimTypeVar(<newname> "T");
+              cs   := [CEq(t, tRes, node),
+                       CSortOf(t, <numerical-types>, node),
+                       CSortOf(tRes, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c], cs)
+    generate-constraints: PostIncr((t, c)) -> (tRes, cRes)
+        where node := "post increment";
+              tRes := PrimTypeVar(<newname> "T");
+              cs   := [CEq(t, tRes, node),
+                       CSortOf(t, <numerical-types>, node),
+                       CSortOf(tRes, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c], cs)
 	// The decrement operator --, both prefix (§15.15.2) and postfix (§15.14.3)
-	generate-constraints: PreDecr((t, c))  -> <fail>
-    generate-constraints: PostDecr((t, c)) -> <fail>
+	generate-constraints: PreDecr((t, c))  -> (tRes, cRes)
+        where node := "pre decrement";
+              tRes := PrimTypeVar(<newname> "T");
+              cs   := [CEq(t, tRes, node),
+                       CSortOf(t, <numerical-types>, node),
+                       CSortOf(tRes, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c], cs)
+    generate-constraints: PostDecr((t, c)) -> (tRes, cRes)
+        where node := "post decrement";
+              tRes := PrimTypeVar(<newname> "T");
+              cs   := [CEq(t, tRes, node),
+                       CSortOf(t, <numerical-types>, node),
+                       CSortOf(tRes, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c], cs)
 	// The signed and unsigned shift operators <<, >>, and >>> (§15.19)
-	generate-constraints: LeftShift((t1, c1), (t2, c2))   -> <fail>
-	generate-constraints: RightShift((t1, c1), (t2, c2))  -> <fail>
-	generate-constraints: URightShift((t1, c1), (t2, c2)) -> <fail>
+	generate-constraints: LeftShift((t1, c1), (t2, c2))   -> (t1, cRes)
+	   where node := "left shift";
+	         cs   := [CSortOf(t1, <integral-types>, node),
+	                  CSortOf(t2, <integral-types>, node)];
+	         cRes := <merge-result-sets> ([c1, c2], cs)
+	generate-constraints: RightShift((t1, c1), (t2, c2))  -> (t1, cRes)
+	   where node := "right shift";
+	         cs   := [CSortOf(t1, <integral-types>, node),
+	                  CSortOf(t1, <integral-types>, node)];
+	         cRes := <merge-result-sets> ([c1, c2], cs)
+	generate-constraints: URightShift((t1, c1), (t2, c2)) -> (t1, cRes)
+       where node := "u right shift"; // TODO: unsigned, arithmetic, ..?
+             cs   := [CSortOf(t1, <integral-types>, node),
+                      CSortOf(t1, <integral-types>, node)];
+             cRes := <merge-result-sets> ([c1, c2], cs)
 	// The bitwise complement operator ~ (§15.15.5)
-	generate-constraints: Complement((t, c)) -> <fail>
+	generate-constraints: Complement((t, c)) -> (t, cRes)
+	   where node := "bitwise complement";
+	         cs   := [CSortOf(t, <integral-types>, node)];
+	         cRes := <merge-result-sets> ([c], cs)
 	// The integer bitwise operators &, |, and ^ (§15.22.1)
-	generate-constraints: And((t1, c1), (t2, c2))   -> <fail>
-	generate-constraints: Or((t1, c1), (t2, c2))    -> <fail>
-	generate-constraints: ExcOr((t1, c1), (t2, c2)) -> <fail>
+	generate-constraints: And((t1, c1), (t2, c2))   -> (tRes, cRes)
+	   where node := "bitwise and";
+	         tRes := PrimTypeVar(<newname> "T");
+	         cs   := [CWidenablePrim(t1, t2, node),
+	                  CWidenedEq(tRes, t1, t2, node),
+	                  CSortOf(t1, <conc> (<integral-types>, Boolean()), node),
+	                  CSortOf(t2, <conc> (<integral-types>, Boolean()), node),
+	                  CSortOf(tRes, <numerical-operator-return-types>, node)];
+             cRes := <merge-result-sets> ([c1, c2], cs)
+	generate-constraints: Or((t1, c1), (t2, c2))    -> (tRes, cRes)
+       where node := "bitwise or";
+             tRes := PrimTypeVar(<newname> "T");
+             cs   := [CWidenablePrim(t1, t2, node),
+                      CWidenedEq(tRes, t1, t2, node),
+                      CSortOf(t1, <conc> (<integral-types>, Boolean()), node),
+                      CSortOf(t2, <conc> (<integral-types>, Boolean()), node),
+                      CSortOf(tRes, <numerical-operator-return-types>, node)];
+             cRes := <merge-result-sets> ([c1, c2], cs)
+	generate-constraints: ExcOr((t1, c1), (t2, c2)) -> (tRes, cRes)
+       where node := "bitwise exclusive or";
+             tRes := PrimTypeVar(<newname> "T");
+             cs   := [CWidenablePrim(t1, t2, node),
+                      CWidenedEq(tRes, t1, t2, node),
+                      CSortOf(t1, <conc> (<integral-types>, Boolean()), node),
+                      CSortOf(t2, <conc> (<integral-types>, Boolean()), node),
+                      CSortOf(tRes, <numerical-operator-return-types>, node)];
+             cRes := <merge-result-sets> ([c1, c2], cs)
 // The conditional operator ? : (§15.25) 
-	generate-constraints: Cond((t1, c1), (t2, c2), (t3, c3)) -> <fail>
+	generate-constraints: Cond((t1, c1), (t2, c2), (t3, c3)) -> (tRes, cRes)
+	   where node := "conditional expression";
+	         tRes := PrimTypeVar(<newname> "T");
+	         cs   := [CEq(Boolean(), t1, node),
+	                  CWidenablePrim(t2, t3, node),
+	                  CWidenedEq(tRes, t2, t3, node),
+	                  CSortOf(tRes, <conc> (<numerical-operator-return-types>, Boolean()), node),
+	                  CSortOf(t2, <primitive-types>, node),
+	                  CSortOf(t3, <primitive-types>, node)];
+	         cRes := <merge-result-sets> ([c1, c2, c3], cs)
 // The cast operator, which can convert from an integral value to a value of any specified numeric type (§5.5, §15.16)
-	generate-constraints: CastPrim((t1, c1), (t2, c2)) -> <fail>
+	generate-constraints: CastPrim(t1, (t2, c2)) -> (t1 , cRes) // TODO: what with (bool) true, javac says ok
+	   where node := "primitive cast";
+	         cs   := [CSortOf(t1, <numerical-types>, node),
+	                  CSortOf(t2, <numerical-types>, node)];
+	         cRes := <merge-result-sets> ([c2], cs)
+// 4.2.5 The boolean Type and boolean Values
+//  The boolean type represents a logical quantity with two possible values, indicated by the literals true and false (§3.10.3). The boolean operators are:
+// 
+// The logical-complement operator ! (§15.15.6) 
+    generate-constraints: Not((t, c)) -> (Boolean(), cRes)
+        where node := "logical not";
+              cs   := [CEq(Boolean(), t, node)];
+              cRes := <merge-result-sets> ([c], cs)
+// The conditional-and and conditional-or operators && (§15.23) and || (§15.24)
+    generate-constraints: LazyAnd((t1, c1), (t2, c2)) -> (Boolean(), cRes)
+        where node := "logical and";
+              cs   := [CEq(Boolean(), t1, node),
+                       CEq(Boolean(), t2, node)];
+              cRes := <merge-result-sets> ([c1, c2], cs)
+    generate-constraints: LazyOr((t1, c1), (t2, c2)) -> (Boolean(), cRes)
+        where node := "logical or";
+              cs   := [CEq(Boolean(), t1, node),
+                       CEq(Boolean(), t2, node)];
+              cRes := <merge-result-sets> ([c1, c2], cs)
+
+
 // The string concatenation operator + (§15.18.1), which, when given a String operand and an integral operand,
 //   will convert the integral operand to a String representing its value in decimal form,
 //   and then produce a newly created String that is the concatenation of the two strings
-    // TODO: Plus is overloaded
+    // TODO: Plus is overloaded with string
     
     
     
@@ -75,14 +242,3 @@ rules
 // to a String representing its value in decimal form (without information loss),
 // and then produce a newly created String by concatenating the two strings
 
-// 4.2.5 The boolean Type and boolean Values
-//  The boolean type represents a logical quantity with two possible values, indicated by the literals true and false (§3.10.3). The boolean operators are:
-// 
-// The relational operators == and != (§15.21.2) 
-// The logical-complement operator ! (§15.15.6) 
-// The logical operators &, ^, and | (§15.22.2) 
-// The conditional-and and conditional-or operators && (§15.23) and || (§15.24) 
-// The conditional operator ? : (§15.25) 
-// The string concatenation operator + (§15.18.1), which, when given a String operand and a boolean operand,
-// will convert the boolean operand to a String (either "true" or "false"),
-// and then produce a newly created String that is the concatenation of the two strings

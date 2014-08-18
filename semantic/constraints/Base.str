@@ -5,23 +5,100 @@ imports
 
 signature constructors
     CEq : Type * Type * String -> Constraint
+    // CSubClass : Type * Type * String -> Constraint
+    // CSubIFace : Type * Type * String -> Constraint
+    CWidenablePrim : Type * Type * String -> Constraint // primitive type widening is possible (commutative)
+    CWidenedEq : Type * Type * Type * String -> Constraint // t1 must be equal to the widening of t1 and t2
+    CSortOf : Type * List(Type) * STRING -> Constraint           // lhs Type must be one of rhs Types
     MetaTypeVar : String -> Type
+    PrimTypeVar : String -> Type                        // primitive type var
+    RefTypeVar : String -> Type                         // reference type var
     NullType : Type // is this needed?
 
 rules
     /**
      * Provides an empty result set for constraint generation.
      *
-     * @type (List(Constraint), List(Binding), ...)
+     *        constraints, bindings, mgu, errornous constraints
+     * @type (List(Constraint), List(Binding), List((STRING, Type)), List(Constraints))
      */
-    empty-result = !([], [])
+    empty-result = !([], [], [], [])
     
     /**
-     * Provides a list with Primitive Types for numericals.
+     * Provides a list with primitive Types
      */
-    numerical-types = ![Byte(), Short(), Int(), Long(), Float(), Double()]
+    primitive-types = ![Byte(), Short(), Int(), Long(), Char(), Float(), Double(), Boolean()]
+    numerical-types = ![Byte(), Short(), Int(), Long(), Char(), Float(), Double()]
+    integral-types = ![Byte(), Short(), Int(), Long(), Char()]
+    float-types = ![Float(), Double()]
+    numerical-operator-return-types = ![Int(), Long(), Float(), Double()]
     
     /**
-     * Determines whether a given type is a numerical type or not.
+     * Determines whether a given type is a primitive type or not.
      */
+    is-primitive-type: t -> <elem> (t, <primitive-types>)
     is-numerical-type: t -> <elem> (t, <numerical-types>)
+    is-integral-type: t -> <elem> (t, <integral-types>)
+    is-float-type: t -> <elem> (t, <float-types>)
+    
+    // widen primitive types (A Formal Type System for Java, Fig. 14)
+    // TODO: what about chars?
+    widen-prim: (t, t) -> <id>  // TODO: t must be a type
+    widen-prim: (Byte(), Short()) -> <id>
+    widen-prim: (Byte(), Int()) -> <id>
+    widen-prim: (Byte(), Long()) -> <id>
+    widen-prim: (Byte(), Float()) -> <id>
+    widen-prim: (Byte(), Double()) -> <id>
+    widen-prim: (Short(), Int()) -> <id>
+    widen-prim: (Short(), Long()) -> <id>
+    widen-prim: (Short(), Float()) -> <id>
+    widen-prim: (Short(), Double()) -> <id>
+    widen-prim: (Int(), Long()) -> <id>
+    widen-prim: (Int(), Float()) -> <id>
+    widen-prim: (Int(), Double()) -> <id>
+    widen-prim: (Long(), Float()) -> <id>
+    widen-prim: (Long(), Double()) -> <id>
+    widen-prim: (Float(), Double()) -> <id>
+    
+    /**
+     * Merges multiple result sets
+     *
+     * @param List of result sets to be merged
+     * @param List of new constraints
+     * 
+     * @type (List(result-set), List(Constraint)) -> result-set 
+     */
+    merge-result-sets: (results, newConstraints) -> (constraints, bindings, [], errors)
+        where bindings    := <filter-bindings; flatten-list> results;
+              constraints := <conc> (newConstraints, <filter-constraints; flatten-list> results);
+              errors      := <filter-errors; flatten-list> results
+    
+//     // list, list -> resultSet
+//     mergeUnify: (c, cs) -> (constraints', bindings', mgu, errs)
+//         where bindings    := <filter-bindings; flatten-list; bUnion> c;
+//               constraints := <conc> (cs, <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> c);
+//               errors      := <filter-errs; flatten-list> c;
+//               (constraints', mgu, errs) := <unify'> (constraints, [], [], errors); // (constraints, [], <filter-mgu; flatten-list> c, [])
+//               bindings'   := <map(\ (x, t) -> (x, <app_mgu> (t, mgu)) \)> bindings
+// 
+//     // list, list, (var, type) -> resultSet
+//     mergeUnify: (c, cs, (x, t)) -> (constraints', bindings'', mgu, errs)
+//         where cNew := ([], [(x, t)], [], []);
+//               c'   := [cNew|c];
+//               bindings    := <filter-bindings; flatten-list; bUnion> c';
+//               bindings'   := <remove-all(?(x, _))> bindings;
+//               constraints := <conc> (cs, <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> c');
+//               errors      := <filter-errs; flatten-list> c';
+//               (constraints', mgu, errs) := <unify'> (constraints, [], [], errors);
+//               bindings''  := <map(\ (x, t) -> (x, <app_mgu> (t, mgu)) \)> bindings'
+//               
+//     mergeUnify = debug(!"mergeUnify: "); fail
+
+    constraints: (cs, _, _, _) -> cs
+    bindings: (_, bs, _, _)    -> bs
+    mgu: (_, _, mgu, _)        -> mgu
+    errors: (_, _, _, errs)    -> errs
+    filter-bindings = map(bindings)
+    filter-constraints = map(constraints)
+    filter-mgu = map(mgu)
+    filter-errors = map(errors)
