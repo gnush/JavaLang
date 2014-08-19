@@ -83,11 +83,11 @@ rules
     generate-constraints: Plus((t1, c1), (t2, c2))  -> (tRes, cRes) // TODO: String
         where tRes := PrimTypeVar(<newname> "T");
               node := "binary plus";
-              cs   := [CWidenablePrim(t1, t2, node),
+              cs   := [CWidenablePrimString(t1, t2, node),
                        CWidenedEq(tRes, t1, t2, node),
-                       CSortOf(t1, <numerical-types>, node),
+                       CSortOf(t1, [<string-type>|<numerical-types>], node),
                        CSortOf(t2, <numerical-types>, node),
-                       CSortOf(tRes, <numerical-operator-return-types>, node)];
+                       CSortOf(tRes, [<string-type>|<numerical-operator-return-types>], node)];
               cRes := <merge-result-sets> ([c1, c2], cs)
     generate-constraints: Minus((t1, c1), (t2, c2)) -> (tRes, cRes)
         where tRes := PrimTypeVar(<newname> "T");

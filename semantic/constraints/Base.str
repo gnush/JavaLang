@@ -8,6 +8,7 @@ signature constructors
     // CSubClass : Type * Type * String -> Constraint
     // CSubIFace : Type * Type * String -> Constraint
     CWidenablePrim : Type * Type * String -> Constraint // primitive type widening is possible (commutative)
+    CWidenablePrimString : Type * Type * String -> Constraint // primitive type widening is possible (commutative) or first type is string
     CWidenedEq : Type * Type * Type * String -> Constraint // t1 must be equal to the widening of t1 and t2
     CSortOf : Type * List(Type) * STRING -> Constraint           // lhs Type must be one of rhs Types
     MetaTypeVar : String -> Type
@@ -70,6 +71,14 @@ rules
     widen-prim: (Long(), Float()) -> <id>
     widen-prim: (Long(), Double()) -> <id>
     widen-prim: (Float(), Double()) -> <id>
+    
+    test-string = !(Int(), Long()); widen-prim-string
+    
+    // t must be a primitive type
+    widen-prim-string: (t, t') -> <if <widen-prim> (t, t')
+                                    then id
+                                    else string-type; ?t; id
+                                   end>
     
     /**
      * Merges multiple result sets
