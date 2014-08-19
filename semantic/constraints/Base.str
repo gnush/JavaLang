@@ -34,6 +34,17 @@ rules
     numerical-operator-return-types = ![Int(), Long(), Float(), Double()]
     
     /**
+     * Type for string literals (without methods)
+     */
+    string-type = !ClassOrInterfaceType(
+				    TypeName(
+				      PackageOrTypeName(PackageOrTypeName(Id("java")), Id("lang"))
+				    , Id("String")
+				    )
+				  , None()
+				  )
+    
+    /**
      * Determines whether a given type is a primitive type or not.
      */
     is-primitive-type: t -> <elem> (t, <primitive-types>)
