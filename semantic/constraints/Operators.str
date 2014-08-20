@@ -216,6 +216,10 @@ rules
               cRes := <merge-result-sets> ([c1, c2], cs)
 
 
+    // TODO: merge qualified name to string
+    generate-constraints: Assign(ExprName(qualifiedName), expr) -> <fail>
+    
+
 // module languages/java-15/expressions/AssignmentOperators
 // imports languages/java-15/expressions/Main
 // 
