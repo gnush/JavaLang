@@ -84,7 +84,7 @@ rules
         where tRes := PrimTypeVar(<newname> "T");
               node := "binary plus";
               cs   := [CWidenablePrimString(t1, t2, node),
-                       CWidenedEq(tRes, t1, t2, node),
+                       CWidenedEq(tRes, t1, t2, node), // TODO: new string constraint needed?
                        CSortOf(t1, [<string-type>|<numerical-types>], node),
                        CSortOf(t2, <numerical-types>, node),
                        CSortOf(tRes, [<string-type>|<numerical-operator-return-types>], node)];

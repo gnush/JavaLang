@@ -1,0 +1,42 @@
+module constraints/Statements
+
+imports
+    include/JavaLang
+    semantic/constraints/Base
+
+// TODO
+// - Optional syntax parameters like in return    
+
+rules
+    generate-constraints: Empty() -> <fail>
+    generate-constraints: Labeled(label, stm) -> <fail>
+    generate-constraints: ExprStm(expr) -> <fail>
+    generate-constraints: If(condExpr, bodyStm) -> <fail>
+    generate-constraints: If(condExpr, thenStm, elseStm) -> <fail>
+    generate-constraints: AssertStm(expr) -> <fail>
+    generate-constraints: AssertStm(expr1, expr2) -> <fail>
+    generate-constraints: Switch(expr, stm) -> <fail>  
+    generate-constraints: SwitchBlock(listSwitchGroup, listSwitchLabel) -> <fail>
+    generate-constraints: SwitchGroup(switchLabel, blockStm) -> <fail>
+    generate-constraints: Case(expr) -> <fail> // SwitchLabel
+    generate-constraints: Default() -> <fail> // SwitchLabel
+    generate-constraints: While(expr, stm) -> <fail>
+    generate-constraints: DoWhile(stm, expr) -> <fail>
+    generate-constraints: For(localVarDec, expr, exprs, stm) -> <fail>
+    generate-constraints: For(exprs1, expr, exprs2, stm) -> <fail>
+    generate-constraints: ForEach(formalParam, expr, stm) -> <fail>
+    // generate-constraints: Break() -> <fail>
+    generate-constraints: Break(label) -> <fail> 
+    // generate-constraints: Continue() -> <fail>
+    generate-constraints: Continue(label) -> <fail>
+    // generate-constraints: Return() -> <fail>
+    generate-constraints: Return(expr) -> <fail>
+    generate-constraints: Throw(expr) -> <fail>
+    generate-constraints: Synchronized(expr, blockStm) -> <fail>
+    generate-constraints: Try(block, catch) -> <fail>
+    generate-constraints: Try(block, listCatch, finallyBlock) -> <fail>
+    generate-constraints: Catch(formalParam, block) -> <fail>
+    generate-constraints: Block(listBlockStm) -> <fail>
+    generate-constraints: ClassDecStm(classDec) -> <fail>
+    generate-constraints: LocalVarDecStm(localVarDec) -> <fail>
+    generate-constraints: LocalVarDec(listAnnoOrVarMod, type, varDec) -> <fail>
