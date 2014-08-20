@@ -2,6 +2,7 @@ module constraints/Operators
 
 // TODO:
 // - error part of constraints as extra var, like in plus
+// - assignment expressions
 
 imports
     include/JavaLang
@@ -215,30 +216,25 @@ rules
               cRes := <merge-result-sets> ([c1, c2], cs)
 
 
-// The string concatenation operator + (§15.18.1), which, when given a String operand and an integral operand,
-//   will convert the integral operand to a String representing its value in decimal form,
-//   and then produce a newly created String that is the concatenation of the two strings
-    // TODO: Plus is overloaded with string
-    
-    
-    
-
-// 4.2.4 Floating-Point Operations
-//  The Java programming language provides a number of operators that act on floating-point values:
+// module languages/java-15/expressions/AssignmentOperators
+// imports languages/java-15/expressions/Main
 // 
-// The comparison operators, which result in a value of type boolean: 
-// The numerical comparison operators <, <=, >, and >= (§15.20.1) 
-// The numerical equality operators == and != (§15.21.1) 
-// The numerical operators, which result in a value of type float or double: 
-// The unary plus and minus operators + and - (§15.15.3, §15.15.4) 
-// The multiplicative operators *, /, and % (§15.17) 
-// The additive operators + and - (§15.18.2) 
-// The increment operator ++, both prefix (§15.15.1) and postfix (§15.14.2) 
-// The decrement operator --, both prefix (§15.15.2) and postfix (§15.14.3) 
-// The conditional operator ? : (§15.25) 
-// The cast operator, which can convert from a floating-point value to a value of any specified numeric type (§5.5, §15.16) 
-// The string concatenation operator + (§15.18.1), which,
-// when given a String operand and a floating-point operand, will convert the floating-point operand
-// to a String representing its value in decimal form (without information loss),
-// and then produce a newly created String by concatenating the two strings
-
+// exports
+//   sorts LHS
+// 
+//   context-free syntax
+//     LHS "=" Expr    -> Expr {cons("Assign")}
+//     LHS "*=" Expr   -> Expr {cons("AssignMul")}
+//     LHS "/=" Expr   -> Expr {cons("AssignDiv")}
+//     LHS "%=" Expr   -> Expr {cons("AssignRemain")}
+//     LHS "+=" Expr   -> Expr {cons("AssignPlus")}
+//     LHS "-=" Expr   -> Expr {cons("AssignMinus")}
+//     LHS "<<=" Expr  -> Expr {cons("AssignLeftShift")}
+//     LHS ">>=" Expr  -> Expr {cons("AssignRightShift")}
+//     LHS ">>>=" Expr -> Expr {cons("AssignURightShift")}
+//     LHS "&=" Expr   -> Expr {cons("AssignAnd")}
+//     LHS "^=" Expr   -> Expr {cons("AssignExcOr")}
+//     LHS "|=" Expr   -> Expr {cons("AssignOr")}
+//     ExprName        -> LHS  
+//     FieldAccess     -> LHS  
+//     ArrayAccess     -> LHS  
