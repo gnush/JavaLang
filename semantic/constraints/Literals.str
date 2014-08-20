@@ -4,6 +4,10 @@ imports
     include/JavaLang
     semantic/constraints/Base
 
+// TODO
+// - class literals
+// - this
+
 rules
     generate-constraints: Lit((t, c)) -> (t, c)
     
