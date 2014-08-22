@@ -11,6 +11,7 @@ signature constructors
     CWidenablePrimString : Type * Type * String -> Constraint // primitive type widening is possible (commutative) or first type is string
     CWidenedEq : Type * Type * Type * String -> Constraint // t1 must be equal to the widening of t1 and t2
     CSortOf : Type * List(Type) * STRING -> Constraint           // lhs Type must be one of rhs Types
+    
     MetaTypeVar : String -> Type
     PrimTypeVar : String -> Type                        // primitive type var
     RefTypeVar : String -> Type                         // reference type var
@@ -89,10 +90,31 @@ rules
      * @type (List(result-set), List(Constraint)) -> result-set 
      */
     merge-result-sets: (results, newConstraints) -> (constraints, bindings, [], errors)
-        where bindings    := <filter-bindings; flatten-list> results;
-              constraints := <conc> (newConstraints, <filter-constraints; flatten-list> results);
+        where bindings    := <filter-bindings; flatten-list; merge-bindings> results;
+              constraints := <concat> (newConstraints,
+                                       <filter-constraints; flatten-list> results,
+                                       <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results);
               errors      := <filter-errors; flatten-list> results
-    
+
+    /**
+     * Merges multiple result sets
+     *
+     * @param List of result sets to be merged
+     * @param List of new constraints
+     * @param New binding
+     * 
+     * @type (List(result-set), List(Constraint), binding) -> result-set 
+     */
+    merge-result-sets: (results, newConstraints, (x, t)) -> (constraints, bindings, [], errors)
+        where newRes      := <update-bindings> (<empty-result>, [(x, t)]);
+              results'    := [newRes|results]; 
+        	  bindings    := <filter-bindings; flatten-list; merge-bindings; remove-all(?(x, _))> results';
+              constraints := <concat> (newConstraints,
+                                       <filter-constraints; flatten-list> results',
+                                       <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results');
+              errors      := <filter-errors; flatten-list> results'
+
+
 //     // list, list -> resultSet
 //     mergeUnify: (c, cs) -> (constraints', bindings', mgu, errs)
 //         where bindings    := <filter-bindings; flatten-list; bUnion> c;
@@ -114,6 +136,25 @@ rules
 //               
 //     mergeUnify = debug(!"mergeUnify: "); fail
 
+    //[B("x", "T1"), B("x", "T1123"), B("y", "T2"), B("y", "T1234")] -> [B("x", "T1"), B("y", "T2")]
+    merge-bindings: [] -> []
+    merge-bindings: [(x, t)|bs] -> [(x, t)|<merge-bindings> bs']
+        where bs' := <filter(not(?(x, _)))> bs
+    merge-bindings = debug(!"bUnion: "); fail
+    
+    /** forall x in list. (elem, x) */
+    mk-tuples: (elem, list) -> <map(\ x -> (elem, x) \)> list
+    
+    /** list of bindings -> list of tuples of bindings */
+    mk-isectCallList: [] -> []
+    mk-isectCallList: [x|xs] -> <conc> (<mk-tuples> (x, xs), <mk-isectCallList> xs)
+    
+    /** list of bindings, list of bindings -> list of constraints */
+    isectConstraints: ([], ys) -> []
+    isectConstraints: ([(x, t)|xs], ys) -> <union> (c, <isectConstraints> (xs, ys))
+        where c := <filter(?(x, _) ; \ (_, t') -> CEq(t, t', <conc-strings> ("variable binding of ", x)) \)> ys
+    isectConstraints = debug(!"isectConstraints: "); fail
+
     constraints: (cs, _, _, _) -> cs
     bindings: (_, bs, _, _)    -> bs
     mgu: (_, _, mgu, _)        -> mgu
@@ -122,3 +163,8 @@ rules
     filter-constraints = map(constraints)
     filter-mgu = map(mgu)
     filter-errors = map(errors)
+    
+    update-constraints: (( _, bs, mgu, errs), cs)   -> (cs, bs, mgu, errs)
+    update-bindings:    ((cs,  _, mgu, errs), bs)   -> (cs, bs, mgu, errs)
+    update-mgu:         ((cs, bs,   _, errs), mgu)  -> (cs, bs, mgu, errs)
+    update-errors:      ((cs, bs, mgu,    _), errs) -> (cs, bs, mgu, errs)
