@@ -136,7 +136,7 @@ rules
 //               
 //     mergeUnify = debug(!"mergeUnify: "); fail
 
-    //[B("x", "T1"), B("x", "T1123"), B("y", "T2"), B("y", "T1234")] -> [B("x", "T1"), B("y", "T2")]
+    
     merge-bindings: [] -> []
     merge-bindings: [(x, t)|bs] -> [(x, t)|<merge-bindings> bs']
         where bs' := <filter(not(?(x, _)))> bs
