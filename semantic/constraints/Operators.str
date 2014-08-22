@@ -222,7 +222,7 @@ rules
         where node := "assign";
               tRes := MetaTypeVar(<newname> "T");
               cs   := [CEq(tRes, t, node)];
-              cRes := <merge-result-sets> ([c], cs)
+              cRes := <merge-result-sets <+ empty-result> ([c], cs) // TODO: fails (remove empty-result when fixed)
               
     
 
