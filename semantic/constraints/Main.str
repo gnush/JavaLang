@@ -2,8 +2,10 @@ module Main
 
 imports
     semantic/constraints/Base
+    semantic/constraints/Names
     semantic/constraints/Literals
     semantic/constraints/Operators
+    semantic/constraints/Statements
 
 rules
     /**

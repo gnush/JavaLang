@@ -1,1 +1,1 @@
-x.var = 2;
+obj.var.other.var = 2

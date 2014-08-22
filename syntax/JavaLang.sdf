@@ -3,7 +3,7 @@ imports Java-15
 
 exports
   context-free start-symbols
-    Stm
+    Expr
 
 %%   context-free syntax
 %%      -> Start {cons("Dummy")}

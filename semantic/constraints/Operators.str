@@ -217,7 +217,7 @@ rules
 
 
     // TODO: merge qualified name to string
-    generate-constraints: Assign(ExprName(qualifiedName), expr) -> <fail>
+    generate-constraints: Assign(qualifiedName, expr) -> <fail>
     
 
 // module languages/java-15/expressions/AssignmentOperators

@@ -1,0 +1,21 @@
+module constraints/Names
+
+imports
+    include/JavaLang
+    semantic/constraints/Base
+
+// TODO
+// - distinguish names for expressions, methods, ...
+
+rules
+    generate-constraints: Id(x) -> x
+    generate-constraints: AmbName(x) -> [x]
+    generate-constraints: AmbName(x, y) -> <conc> (x, [y])
+    generate-constraints: ExprName(x) -> [x]
+    generate-constraints: ExprName(x, y) -> <conc> (x, [y])
+    generate-constraints: MethodName(x) -> [x]
+    generate-constraints: MethodName(x, y) -> <conc> (x, [y])
+    generate-constraints: TypeName(x) -> [x]
+    generate-constraints: TypeName(x, y) -> <conc> (x, [y])
+    generate-constraints: PackageOrTypeName(x) -> [x]
+    generate-constraints: PackageOrTypeName(x, y) -> <conc> (x, [y])
