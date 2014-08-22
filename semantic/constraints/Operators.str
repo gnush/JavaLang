@@ -216,8 +216,14 @@ rules
               cRes := <merge-result-sets> ([c1, c2], cs)
 
 
-    // TODO: merge qualified name to string
-    generate-constraints: Assign(qualifiedName, expr) -> <fail>
+    // TODO: no implicit casts here
+    // TODO: type of assign operator void?
+    generate-constraints: Assign(qualifiedName, (t, c)) -> (tRes, cRes)
+        where node := "assign";
+              tRes := MetaTypeVar(<newname> "T");
+              cs   := [CEq(tRes, t, node)];
+              cRes := <merge-result-sets> ([c], cs, (qualifiedName, t))
+              
     
 
 // module languages/java-15/expressions/AssignmentOperators
