@@ -169,3 +169,5 @@ rules
     update-bindings:    ((cs,  _, mgu, errs), bs)   -> (cs, bs, mgu, errs)
     update-mgu:         ((cs, bs,   _, errs), mgu)  -> (cs, bs, mgu, errs)
     update-errors:      ((cs, bs, mgu,    _), errs) -> (cs, bs, mgu, errs)
+    
+    add-binding: ((cs, bs, mgu, errs), binding) -> (cs, [binding|bs], mgu, errs)

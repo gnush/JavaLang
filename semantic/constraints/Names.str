@@ -6,6 +6,7 @@ imports
 
 // TODO
 // - distinguish names for expressions, methods, ...
+// - generate result sets for names, needed when occuring on the RHS
 
 rules
     generate-constraints: Id(x) -> x
