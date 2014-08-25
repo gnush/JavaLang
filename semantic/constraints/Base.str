@@ -91,9 +91,9 @@ rules
      */
     merge-result-sets: (results, newConstraints) -> (constraints, bindings, [], errors)
         where bindings    := <filter-bindings; flatten-list; merge-bindings> results;
-              constraints := <concat> (newConstraints,
+              constraints := <concat> [newConstraints,
                                        <filter-constraints; flatten-list> results,
-                                       <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results);
+                                       <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results];
               errors      := <filter-errors; flatten-list> results
 
     /**
@@ -109,9 +109,9 @@ rules
         where newRes      := <update-bindings> (<empty-result>, [(x, t)]);
               results'    := [newRes|results]; 
         	  bindings    := <filter-bindings; flatten-list; merge-bindings; remove-all(?(x, _))> results';
-              constraints := <concat> (newConstraints,
+              constraints := <concat> [newConstraints,
                                        <filter-constraints; flatten-list> results',
-                                       <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results');
+                                       <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results'];
               errors      := <filter-errors; flatten-list> results'
 
 
@@ -136,6 +136,7 @@ rules
 //               
 //     mergeUnify = debug(!"mergeUnify: "); fail
 
+//testt = ![[("x", "T1"), ("y", "T2")], [("x", "T3"), ("y", "T4")], [("x", "T5"), ("y", "T6")]]; mk-isectCallList; map(isectConstraints)
     
     merge-bindings: [] -> []
     merge-bindings: [(x, t)|bs] -> [(x, t)|<merge-bindings> bs']
