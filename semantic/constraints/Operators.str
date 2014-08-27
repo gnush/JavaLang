@@ -3,6 +3,7 @@ module constraints/Operators
 // TODO:
 // - error part of constraints as extra var, like in plus
 // - assignment expressions
+// - variable declaration
 
 imports
     include/JavaLang
