@@ -220,8 +220,8 @@ rules
     // TODO: (return) type of assign operator void?
     generate-constraints: Assign((t1, c1), (t2, c2)) -> (t1, cRes)
         where node  := "assign";
-              cs    := []; //[CEq(t1, t2, node)];
-              cRes  := <merge-result-sets; fail> ([c1, c2], cs)
+              cs    := [CEq(t1, t2, node)];
+              cRes  := <merge-result-sets> ([c1, c2], cs)
 
 // module languages/java-15/expressions/AssignmentOperators
 // imports languages/java-15/expressions/Main
