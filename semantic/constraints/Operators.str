@@ -216,16 +216,12 @@ rules
               cRes := <merge-result-sets> ([c1, c2], cs)
 
 
-    // TODO: no implicit casts here
-    // TODO: type of assign operator void?
-    generate-constraints: Assign(qualifiedName, (t, c)) -> (tRes, cRes')
+    // no implicit casts here, therefore equality constraints. may be included later
+    // TODO: (return) type of assign operator void?
+    generate-constraints: Assign((t1, c1), (t2, c2)) -> (t1, cRes)
         where node  := "assign";
-              tRes  := MetaTypeVar(<newname> "T");
-              cs    := [CEq(tRes, t, node)];
-              cRes  := <merge-result-sets> ([c], cs);
-              cRes' := <add-binding> (cRes, (qualifiedName, t))
-              
-    
+              cs    := []; //[CEq(t1, t2, node)];
+              cRes  := <merge-result-sets; fail> ([c1, c2], cs)
 
 // module languages/java-15/expressions/AssignmentOperators
 // imports languages/java-15/expressions/Main

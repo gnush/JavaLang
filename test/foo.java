@@ -1,1 +1,1 @@
-obj.var.other.var = 2
+x = x

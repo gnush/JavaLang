@@ -135,8 +135,6 @@ rules
 //               bindings''  := <map(\ (x, t) -> (x, <app_mgu> (t, mgu)) \)> bindings'
 //               
 //     mergeUnify = debug(!"mergeUnify: "); fail
-
-//testt = ![[("x", "T1"), ("y", "T2")], [("x", "T3"), ("y", "T4")], [("x", "T5"), ("y", "T6")]]; mk-isectCallList; map(isectConstraints)
     
     merge-bindings: [] -> []
     merge-bindings: [(x, t)|bs] -> [(x, t)|<merge-bindings> bs']
@@ -151,10 +149,20 @@ rules
     mk-isectCallList: [x|xs] -> <conc> (<mk-tuples> (x, xs), <mk-isectCallList> xs)
     
     /** list of bindings, list of bindings -> list of constraints */
+    // TODO: prettier error message
     isectConstraints: ([], ys) -> []
     isectConstraints: ([(x, t)|xs], ys) -> <union> (c, <isectConstraints> (xs, ys))
-        where c := <filter(?(x, _) ; \ (_, t') -> CEq(t, t', <conc-strings> ("variable binding of ", x)) \)> ys
+        where c := <filter(?(x, _) ; \ (_, t') -> CEq(t, t', <conc-strings> ("variable binding of ", <write-to-string> x)) \)> ys
     isectConstraints = debug(!"isectConstraints: "); fail
+    
+    test-isect = ![([], [(["x"], MetaTypeVar("T31"))], [], []),([], [(["x"], MetaTypeVar("T32"))], [], [])];
+                    filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list
+
+    test-bindings = ![([], [(["x"], MetaTypeVar("T31"))], [], []),([], [(["x"], MetaTypeVar("T32"))], [], [])];
+                        filter-bindings; flatten-list; merge-bindings
+    
+    testt = ![[(["x"], "T1"), (["y"], "T2")], [(["x"], "T3"), (["y"], "T4")], [(["x"], "T5"), (["y"], "T6")]];
+                mk-isectCallList; map(isectConstraints)
 
     constraints: (cs, _, _, _) -> cs
     bindings: (_, bs, _, _)    -> bs
