@@ -219,7 +219,6 @@ rules
                        CEq(Boolean(), t2, node)];
               cRes := <merge-result-sets> ([c1, c2], cs)
 
-
     // no implicit casts here, therefore equality constraints. may be included later
     // TODO: (return) type of assign operator void?
     generate-constraints: Assign((t1, c1), (t2, c2)) -> (t1, cRes)
@@ -235,14 +234,24 @@ rules
                        CEq(t2, Int(), node)];
               cRes := <merge-result-sets> ([c1, c2], cs)
 
-    generate-constraints: ArrayInit(initlist) -> (tRes, cRes)
+    generate-constraints: ArrayInit(initlist) -> (ArrayType(tRes), cRes)
         where node    := "array init";
               tRes    := MetaTypeVar(<newname> "T");
               results := <map(Snd)> initlist;
               cs      := <mk-listeq-pairs; map(\ (p1, p2) -> CEq(<Fst> p1, <Fst> p2, node) \)> [(tRes, None())|initlist];
               cRes    := <merge-result-sets> (results, cs)
 
-    generate-constraints: NewArray(t, dimlist, (t1, c1)) -> <fail>
+    testt = ![Dim(), Dim(), Dim()]; foldr(!Int(), \ (x, xs) -> ArrayType(xs) \)
+
+    // TODO: is there a way to distinguish them on this level?
+    // with array init
+    generate-constraints: NewArray(t, dimlist, (t1, c1)) -> (tRes, cRes)
+        where node := "new array";
+              tRes := <foldr(!t, \ (x, xs) -> ArrayType(xs) \)> dimlist;
+              cs   := [CEq(tRes, t1, node)];
+              cRes := <merge-result-sets> ([c1], cs)
+    
+    // without array init
     generate-constraints: NewArray(t, dimlist1, dimlist2) -> <fail>
 
     mk-listeq-pairs: [] -> []
