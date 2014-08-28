@@ -241,8 +241,6 @@ rules
               cs      := <mk-listeq-pairs; map(\ (p1, p2) -> CEq(<Fst> p1, <Fst> p2, node) \)> [(tRes, None())|initlist];
               cRes    := <merge-result-sets> (results, cs)
 
-    testt = ![Dim(), Dim(), Dim()]; foldr(!Int(), \ (x, xs) -> ArrayType(xs) \)
-
     // TODO: is there a way to distinguish them on this level?
     // with array init
     generate-constraints: NewArray(t, dimlist, (t1, c1)) -> (tRes, cRes)
