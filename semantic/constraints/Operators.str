@@ -3,7 +3,10 @@ module constraints/Operators
 // TODO:
 // - error part of constraints as extra var, like in plus
 // - assignment expressions
-// - variable declaration
+// - ArrayAccess
+// - Array Creation
+// - FieldAccess
+// - Method Invokation
 
 imports
     include/JavaLang
@@ -224,6 +227,42 @@ rules
               cs    := [CEq(t1, t2, node)];
               cRes  := <merge-result-sets> ([c1, c2], cs)
 
+    // array access
+    generate-constraints: ArrayAccess((t1, c1), (t2, c2)) -> (tRes, cRes)
+        where node := "array access";
+              tRes := MetaTypeVar(<newname> "ArrayType");
+              cs   := [CEq(t1, ArrayType(tRes), node),
+                       CEq(t2, Int(), node)];
+              cRes := <merge-result-sets> ([c1, c2], cs)
+
+    generate-constraints: ArrayInit(initlist) -> (tRes, cRes)
+        where node    := "array init";
+              tRes    := MetaTypeVar(<newname> "T");
+              pairs   := <mk-listeq-pairs> initlist;
+              types   := <map(Fst)> pairs;
+              results := <map(Snd)> pairs;
+              cs      := <map(\ (t1, t2) -> CEq(t1, t2, node) \)> [tRes|types];
+              cRes    := <merge-result-sets <+ empty-result> (results, cs)
+
+    generate-constraints: NewArray(t, dimlist, (t1, c1)) -> <fail>
+    generate-constraints: NewArray(t, dimlist1, dimlist2) -> <fail>
+
+    mk-listeq-pairs: [] -> []
+    mk-listeq-pairs: [x] -> []
+    mk-listeq-pairs: [x|[y|xs]] -> [(x, y)|<mk-listeq-pairs> [y|xs]] 
+    mk-listeq-pairs = fail
+
+  // context-free syntax
+  //   ArrayCreationExpr                  -> Expr              
+  //   "new" ArrayBaseType DimExpr+ Dim*  -> ArrayCreationExpr {cons("NewArray")}
+  //   "new" ArrayBaseType Dim+ ArrayInit -> ArrayCreationExpr {cons("NewArray")}
+  //   PrimType                           -> ArrayBaseType     
+  //   TypeName                           -> ArrayBaseType     
+  //   TypeName "<" "?" ">"               -> ArrayBaseType     {cons("UnboundWld")}
+  //   "[" Expr "]"                       -> DimExpr           {cons("Dim")}
+  //   "[" "]"                            -> Dim               {cons("Dim")}
+    
+    
 // module languages/java-15/expressions/AssignmentOperators
 // imports languages/java-15/expressions/Main
 // 

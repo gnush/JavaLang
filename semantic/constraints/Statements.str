@@ -6,6 +6,7 @@ imports
 
 // TODO
 // - Optional syntax parameters like in return    
+// - variable declaration
 
 rules
     generate-constraints: Empty() -> <fail>
