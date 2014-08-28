@@ -238,11 +238,9 @@ rules
     generate-constraints: ArrayInit(initlist) -> (tRes, cRes)
         where node    := "array init";
               tRes    := MetaTypeVar(<newname> "T");
-              pairs   := <mk-listeq-pairs> initlist;
-              types   := <map(Fst)> pairs;
-              results := <map(Snd)> pairs;
-              cs      := <map(\ (t1, t2) -> CEq(t1, t2, node) \)> [tRes|types];
-              cRes    := <merge-result-sets <+ empty-result> (results, cs)
+              results := <map(Snd)> initlist;
+              cs      := <mk-listeq-pairs; map(\ (p1, p2) -> CEq(<Fst> p1, <Fst> p2, node) \)> [(tRes, None())|initlist];
+              cRes    := <merge-result-sets> (results, cs)
 
     generate-constraints: NewArray(t, dimlist, (t1, c1)) -> <fail>
     generate-constraints: NewArray(t, dimlist1, dimlist2) -> <fail>
