@@ -256,9 +256,8 @@ rules
     // without array init
     generate-constraints: NewArray(t, dimlist1, dimlist2) -> (tRes, cRes)
         where node := "new array dimlist";
-              dimlist := <conc> (dimlist1, dimlist2);
-              tRes := <foldr(!t, \ (x, xs) -> ArrayType(xs) \); debug(!"Type: ")> dimlist; 
-              cs   := <map(\ Dim((t', _)) -> CEq(Int(), t', node) \); debug(!"Cs: ")> dimlist1;
+              tRes := <conc; foldr(!t, \ (x, xs) -> ArrayType(xs) \)> (dimlist1, dimlist2); 
+              cs   := <map(\ Dim((t', _)) -> CEq(Int(), t', node) \)> dimlist1;
               cRes := <merge-result-sets> (<map(\ Dim((_, c)) -> c \)> dimlist1, cs)
 
     mk-listeq-pairs: [] -> []
