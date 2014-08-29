@@ -249,8 +249,17 @@ rules
               cs   := [CEq(tRes, t1, node)];
               cRes := <merge-result-sets> ([c1], cs)
     
+    testt = !([ Dim((Int(), ([], [], [], []))), Dim((Int(), ([], [], [], [])))]
+             ,[Dim()])
+            ;conc; foldr(!Int(), \ (x, xs) -> ArrayType(xs) \)
+    
     // without array init
-    generate-constraints: NewArray(t, dimlist1, dimlist2) -> <fail>
+    generate-constraints: NewArray(t, dimlist1, dimlist2) -> (tRes, cRes)
+        where node := "new array dimlist";
+              dimlist := <conc> (dimlist1, dimlist2);
+              tRes := <foldr(!t, \ (x, xs) -> ArrayType(xs) \); debug(!"Type: ")> dimlist; 
+              cs   := <map(\ Dim((t', _)) -> CEq(Int(), t', node) \); debug(!"Cs: ")> dimlist1;
+              cRes := <merge-result-sets> (<map(\ Dim((_, c)) -> c \)> dimlist1, cs)
 
     mk-listeq-pairs: [] -> []
     mk-listeq-pairs: [x] -> []
