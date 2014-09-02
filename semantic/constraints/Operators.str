@@ -86,7 +86,7 @@ rules
               cRes := <merge-result-sets> ([c1, c2], cs)
     // The additive operators + and - (§15.18) 
     generate-constraints: Plus((t1, c1), (t2, c2))  -> (tRes, cRes) // TODO: String
-        where tRes := PrimTypeVar(<newname> "T");
+        where tRes := MetaTypeVar(<newname> "T");
               node := "binary plus";
               cs   := [CWidenablePrimString(t1, t2, node),
                        CWidenedEq(tRes, t1, t2, node), // TODO: new string constraint needed?
@@ -248,10 +248,6 @@ rules
               tRes := <foldr(!t, \ (x, xs) -> ArrayType(xs) \)> dimlist;
               cs   := [CEq(tRes, t1, node)];
               cRes := <merge-result-sets> ([c1], cs)
-    
-    testt = !([ Dim((Int(), ([], [], [], []))), Dim((Int(), ([], [], [], [])))]
-             ,[Dim()])
-            ;conc; foldr(!Int(), \ (x, xs) -> ArrayType(xs) \)
     
     // without array init
     generate-constraints: NewArray(t, dimlist1, dimlist2) -> (tRes, cRes)
