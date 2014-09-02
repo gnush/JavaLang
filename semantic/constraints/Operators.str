@@ -2,9 +2,6 @@ module constraints/Operators
 
 // TODO:
 // - error part of constraints as extra var, like in plus
-// - assignment expressions
-// - ArrayAccess
-// - Array Creation
 // - FieldAccess
 // - Method Invokation
 
@@ -234,6 +231,7 @@ rules
                        CEq(t2, Int(), node)];
               cRes := <merge-result-sets> ([c1, c2], cs)
 
+    // array init list
     generate-constraints: ArrayInit(initlist) -> (ArrayType(tRes), cRes)
         where node    := "array init";
               tRes    := MetaTypeVar(<newname> "T");
@@ -255,6 +253,8 @@ rules
               tRes := <conc; foldr(!t, \ (x, xs) -> ArrayType(xs) \)> (dimlist1, dimlist2); 
               cs   := <map(\ Dim((t', _)) -> CEq(Int(), t', node) \)> dimlist1;
               cRes := <merge-result-sets> (<map(\ Dim((_, c)) -> c \)> dimlist1, cs)
+
+    //generate-constraints: UnboundWld(t) -> t
 
     mk-listeq-pairs: [] -> []
     mk-listeq-pairs: [x] -> []
