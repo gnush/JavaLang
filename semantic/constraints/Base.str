@@ -105,7 +105,7 @@ rules
      * 
      * @type (List(result-set), List(Constraint), binding) -> result-set 
      */
-    merge-result-sets: (results, newConstraints, (x, t)) -> (constraints, bindings, [], errors)
+    merge-result-sets(unify): (results, newConstraints, (x, t)) -> (constraints, bindings, [], errors)
         where newRes      := <update-bindings> (<empty-result>, [(x, t)]);
               results'    := [newRes|results]; 
         	  bindings    := <filter-bindings; flatten-list; merge-bindings; remove-all(?(x, _))> results';
@@ -114,6 +114,7 @@ rules
                                        <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results'];
               errors      := <filter-errors; flatten-list> results'
 
+    merge-result-sets = debug(!"merge-result-sets"); fail
 
 //     // list, list -> resultSet
 //     mergeUnify: (c, cs) -> (constraints', bindings', mgu, errs)
@@ -154,9 +155,6 @@ rules
     isectConstraints: ([(x, t)|xs], ys) -> <union> (c, <isectConstraints> (xs, ys))
         where c := <filter(?(x, _) ; \ (_, t') -> CEq(t, t', <conc-strings> ("variable binding of ", <write-to-string> x)) \)> ys
     isectConstraints = debug(!"isectConstraints: "); fail
-
-    test-bindings = ![([], [(["x"], MetaTypeVar("T31"))], [], []),([], [(["x"], MetaTypeVar("T32"))], [], [])];
-                        filter-bindings; flatten-list; merge-bindings
 
     constraints: (cs,  _,   _,   _,    _) -> cs
     bindings:    (_,  bs,   _,   _,    _) -> bs
