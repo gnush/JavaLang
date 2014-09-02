@@ -260,17 +260,6 @@ rules
     mk-listeq-pairs: [x] -> []
     mk-listeq-pairs: [x|[y|xs]] -> [(x, y)|<mk-listeq-pairs> [y|xs]] 
     mk-listeq-pairs = fail
-
-  // context-free syntax
-  //   ArrayCreationExpr                  -> Expr              
-  //   "new" ArrayBaseType DimExpr+ Dim*  -> ArrayCreationExpr {cons("NewArray")}
-  //   "new" ArrayBaseType Dim+ ArrayInit -> ArrayCreationExpr {cons("NewArray")}
-  //   PrimType                           -> ArrayBaseType     
-  //   TypeName                           -> ArrayBaseType     
-  //   TypeName "<" "?" ">"               -> ArrayBaseType     {cons("UnboundWld")}
-  //   "[" Expr "]"                       -> DimExpr           {cons("Dim")}
-  //   "[" "]"                            -> Dim               {cons("Dim")}
-    
     
 // module languages/java-15/expressions/AssignmentOperators
 // imports languages/java-15/expressions/Main

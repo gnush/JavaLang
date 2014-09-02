@@ -21,6 +21,8 @@ rules
     
     generate-constraints: String(l) -> (<string-type>, <empty-result>) // TODO: String Object -> Reference Type
     
+    generate-constraints: Class(t) -> (t, <empty-result>) // TODO: add new class binding in result set
+    
     /**
      * Determines the type of an String, assuming it comes from an IntLiteral.
      *

@@ -21,10 +21,10 @@ rules
     /**
      * Provides an empty result set for constraint generation.
      *
-     *        constraints, bindings, mgu, errornous constraints
-     * @type (List(Constraint), List(Binding), List((STRING, Type)), List(Constraints))
+     *        constraints, bindings for variables, bindings for classes, mgu, errornous constraints
+     * @type (List(Constraint), List(Binding), List(Classnames), List((STRING, Type)), List(Constraints))
      */
-    empty-result = !([], [], [], [])
+    empty-result = !([], [], [], [], [])
     
     /**
      * Provides a list with primitive Types
@@ -164,18 +164,25 @@ rules
     testt = ![[(["x"], "T1"), (["y"], "T2")], [(["x"], "T3"), (["y"], "T4")], [(["x"], "T5"), (["y"], "T6")]];
                 mk-isectCallList; map(isectConstraints)
 
-    constraints: (cs, _, _, _) -> cs
-    bindings: (_, bs, _, _)    -> bs
-    mgu: (_, _, mgu, _)        -> mgu
-    errors: (_, _, _, errs)    -> errs
-    filter-bindings = map(bindings)
+    constraints: (cs,  _,   _,   _,    _) -> cs
+    bindings:    (_,  bs,   _,   _,    _) -> bs
+    classes:     (_,   _, cls,   _,    _) -> cls
+    mgu:         (_,   _,   _, mgu,    _) -> mgu
+    errors:      (_,   _,   _,   _, errs) -> errs
+
     filter-constraints = map(constraints)
+    filter-bindings = map(bindings)
+    filter-classes = map(classes)
     filter-mgu = map(mgu)
     filter-errors = map(errors)
     
-    update-constraints: (( _, bs, mgu, errs), cs)   -> (cs, bs, mgu, errs)
-    update-bindings:    ((cs,  _, mgu, errs), bs)   -> (cs, bs, mgu, errs)
-    update-mgu:         ((cs, bs,   _, errs), mgu)  -> (cs, bs, mgu, errs)
-    update-errors:      ((cs, bs, mgu,    _), errs) -> (cs, bs, mgu, errs)
+    update-constraints: (( _, bs, cls, mgu, errs), cs)   -> (cs, bs, cls, mgu, errs)
+    update-bindings:    ((cs,  _, cls, mgu, errs), bs)   -> (cs, bs, cls, mgu, errs)
+    update-classes:     ((cs, bs,   _, mgu, errs), cls)  -> (cs, bs, cls, mgu, errs)
+    update-mgu:         ((cs, bs, cls,   _, errs), mgu)  -> (cs, bs, cls, mgu, errs)
+    update-errors:      ((cs, bs, cls, mgu,    _), errs) -> (cs, bs, cls, mgu, errs)
     
-    add-binding: ((cs, bs, mgu, errs), binding) -> (cs, [binding|bs], mgu, errs)
+    add-constraint: ((cs, bs, cls, mgu, errs), constraint) -> ([constraint|cs], bs, cls, mgu, errs)
+    add-binding:    ((cs, bs, cls, mgu, errs), binding)    -> (cs, [binding|bs], cls, mgu, errs)
+    add-class:      ((cs, bs, cls, mgu, errs), class)      -> (cs, bs, [class|cls], mgu, errs)
+    add-error:      ((cs, bs, cls, mgu, errs), error)      -> (cs, bs, cls, mgu, [error|errs])
