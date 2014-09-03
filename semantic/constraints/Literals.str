@@ -5,7 +5,6 @@ imports
     semantic/constraints/Base
 
 // TODO
-// - class literals
 // - this
 
 rules
@@ -21,7 +20,9 @@ rules
     
     generate-constraints: String(l) -> (<string-type>, <empty-result>)
     
-    generate-constraints: Class(t) -> (t, <add-class> (<empty-result>, t)) // TODO: extract classname from type
+    generate-constraints: Class(t) -> (t, <empty-result>) // TODO: extract classname from type
+    
+    generate-constraints: This() -> (RefTypeVar(<newname> ("RefType")), <empty-result>)
     
     /**
      * Determines the type of an String, assuming it comes from an IntLiteral.
