@@ -256,6 +256,22 @@ rules
 
     //generate-constraints: UnboundWld(t) -> t
 
+    generate-constraints: Field((t, c), x) -> (tRes, cRes) 
+        where node := "field access";
+              tRes := MetaTypeVar(<newname> "T");
+              cs   := []; // TODO: t is array type or class.
+                          //       x is bound to return type
+                          //         and x is member of first argument
+              cRes := <merge-result-sets> ([c], cs)
+
+    generate-constraints: SuperField(x) -> (tRes, cRes)
+        where node := "super field access";
+              tRes := MetaTypeVar(<newname> "T");
+              cs   := []; // TODO: ???
+              cRes := <empty-result>
+
+    //generate-constraints: QSuperField(t, x) ->
+
     mk-listeq-pairs: [] -> []
     mk-listeq-pairs: [x] -> []
     mk-listeq-pairs: [x|[y|xs]] -> [(x, y)|<mk-listeq-pairs> [y|xs]] 
