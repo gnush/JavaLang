@@ -271,6 +271,29 @@ rules
               cRes := <empty-result>
 
     //generate-constraints: QSuperField(t, x) ->
+    
+    generate-constraints: Invoke((t, c), arglist) -> (tRes, cRes)
+        where node := "method invokation";
+              tRes := MetaTypeVar(<newname> "T");
+              cs   := []; // TODO:  first argument (the method) must support number and types of arguments
+              cRes := <empty-result>
+              
+    generate-constraints: Method(x) -> (tRes, cRes)
+        where node := "method"; // TODO: declaration?
+              tRes := MetaTypeVar(<newname> "T");
+              cs   := []; // TODO: ???
+              cRes := <empty-result>
+
+    // not supporting typeargs (generics)
+    generate-constraints: Method((t, c), typeArgs, methodName) -> (tRes, cRes)
+        where node := "method"; // TODO: declaration?
+              tRes := MetaTypeVar(<newname> "T");
+              cs   := []; // TODO: first argument (the object) must have a method with methodName
+              cRes := <empty-result>
+
+    //generate-constraints: SuperMethod(typeArgs, methodName) -> <fail>
+    //generate-constraints: QSuperMethod(t, typeArgs, methodName) -> <fail>
+    //generate-constraints: GenericMethod() -> <fail>
 
     mk-listeq-pairs: [] -> []
     mk-listeq-pairs: [x] -> []
