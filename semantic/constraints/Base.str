@@ -17,6 +17,8 @@ signature constructors
     RefTypeVar : String -> Type                         // reference type var
     NullType : Type // is this needed?
 
+    Unit : Type
+
 rules
     /**
      * Provides an empty result set for constraint generation.
