@@ -28,10 +28,10 @@ rules
     generate-constraints: LocalVarDecStm(localVarDec) -> <fail>
     generate-constraints: LocalVarDec(listAnnoOrVarMod, type, varDec) -> <fail>
     
+    // TODO: resulting type is unit?
     generate-constraints: VarDec(x) -> (tRes, cRes)
         where tRes := MetaTypeVar(<newname> "T");
               cRes := <add-binding> (<empty-result>, (x, tRes))
-              
     generate-constraints: VarDec(x, (t, c)) -> (t, cRes)
         where cRes := <add-binding> (c, (x, t))
     
