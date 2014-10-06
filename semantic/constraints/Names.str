@@ -9,16 +9,16 @@ imports
 // - generate result sets for names, needed when occuring on the RHS
 
 rules
-    generate-constraints: Id(x) -> x
-    generate-constraints: AmbName(x) -> [x]
-    generate-constraints: AmbName(x, y) -> <conc> (x, [y])
+    generate-constraints: Id(x) -> [x]
+    generate-constraints: AmbName(x) -> x
+    generate-constraints: AmbName(x, y) -> <conc> (x, y)
     
     generate-constraints: ExprName(x) -> (tRes, cRes)
         where tRes := MetaTypeVar(<newname> "T");
-              cRes := <add-binding> (<empty-result>, ([x], tRes))
+              cRes := <add-binding> (<empty-result>, (x, tRes))
     generate-constraints: ExprName(x, y) -> (tRes, cRes)
         where tRes := MetaTypeVar(<newname> "T");
-              cRes := <add-binding> (<empty-result>, (<conc> (x, [y]), tRes))
+              cRes := <add-binding> (<empty-result>, (<conc> (x, y), tRes))
 
     // generate-constraints: MethodName(x) -> [x]
     // generate-constraints: MethodName(x, y) -> <conc> (x, [y])
