@@ -28,6 +28,13 @@ rules
     generate-constraints: LocalVarDecStm(localVarDec) -> <fail>
     generate-constraints: LocalVarDec(listAnnoOrVarMod, type, varDec) -> <fail>
     
+    generate-constraints: VarDec(x) -> (tRes, cRes)
+        where tRes := MetaTypeVar(<newname> "T");
+              cRes := <add-binding> (<empty-result>, (x, tRes))
+              
+    generate-constraints: VarDec(x, (t, c)) -> (t, cRes)
+        where cRes := <add-binding> (c, (x, t))
+    
     generate-constraints: Labeled(label, stm) -> <fail>
     generate-constraints: AssertStm(expr) -> <fail>
     generate-constraints: AssertStm(expr1, expr2) -> <fail>
