@@ -18,6 +18,8 @@ signature constructors
     NullType : Type // is this needed?
 
     Unit : Type
+    UnitLocVar : List(Id) -> Type
+    UnitVarDec : Id -> Type
 
 rules
     /**
