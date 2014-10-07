@@ -118,7 +118,40 @@ rules
                                        <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results'];
               errors      := <filter-errors; flatten-list> results'
 
+    /**
+     * Merges multiple result sets
+     *
+     * @param List of result sets to be merged
+     * @param List of new constraints
+     * @param List of new bindings
+     * 
+     * @type (List(result-set), List(Constraint), List(binding)) -> result-set 
+     */
+    merge-result-sets: (results, newConstraints, newVars) -> (constraints, bindings', [], errors)
+        where bindings    := <filter-bindings; flatten-list; merge-bindings> results;
+              bindings'   := <remove-bound> (newVars, bindings);
+              constraints := <concat> [newConstraints,
+                                       <filter-constraints; flatten-list> results,
+                                       <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results];
+              errors      := <filter-errors; flatten-list> results
+
     merge-result-sets = debug(!"merge-result-sets"); fail
+    
+    /**
+     * Removes all bindings from bs whose variable is in bound. 
+     *
+     * @param List of new bound variables
+     * @param List of bindings
+     */
+    remove-bound: (bound, bs) -> <foldr(![], \ ((x, t), xs) -> <if !(x, bound); elem
+                                                                    then !xs
+                                                                    else ![(x, t)|xs] end> \)> bs
+    // fu = !([["i"], ["k"]],
+    //        [ (["i"], Int())
+    //         , (["k"], Int())
+    //         , (["j"], MetaTypeVar("T0"))
+    //         ]); remove-bound
+    //foldrtest = ![1,2,3,4,5]; foldr(![], \ (x, xs) -> [x|xs] \)
 
 //     // list, list -> resultSet
 //     mergeUnify: (c, cs) -> (constraints', bindings', mgu, errs)
