@@ -25,19 +25,22 @@ rules
     
     // handle local var declaration: new binding type (BLoc)?
     generate-constraints: Block(listBlockStm) -> <fail>
-    generate-constraints: LocalVarDecStm(localVarDec) -> <fail>
     
-    generate-constraints: LocalVarDec(listAnnoOrVarMod, t, listVarDec) -> <fail>
+    generate-constraints: LocalVarDecStm((tRes, cRes)) -> (tRes, cRes)    
+    generate-constraints: LocalVarDec(listAnnoOrVarMod, t, listVarDec) -> (UnitLocVar(vars), cRes)
         where node := "LocalVarDec";
               cs   := [];
               vars := <map(\ (UnitVarDec(x), _) -> x \)> listVarDec;
-              sets := <map(Snd)> listVarDec
+              bNew := <map(\ x -> (x, t) \)> vars;
+              cNew := <update-bindings> (<empty-result>, bNew); 
+              sets := [cNew|<map(Snd)> listVarDec];
+              cRes := <merge-result-sets> (sets, cs)
     
     // TODO: resulting type is unit?
     generate-constraints: VarDec(x) -> (UnitVarDec(x), cRes)
         where tRes := MetaTypeVar(<newname> "T");
               cRes := <add-binding> (<empty-result>, (x, tRes))
-    generate-constraints: VarDec(x, (t, c)) -> (UnitVarDec(x), cRes) //TODO: type widening?
+    generate-constraints: VarDec(x, (t, c)) -> (UnitVarDec(x), cRes)
         where cRes := <add-binding> (c, (x, t))
     
     generate-constraints: Labeled(label, stm) -> <fail>
