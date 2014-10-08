@@ -150,28 +150,6 @@ rules
                                                                     then !xs
                                                                     else ![(x, t)|xs] end> \)> bs
 
-
-    mergetest = mergcalldata; merge-result-sets
-
-    mergcalldata = !([
-        ([],
-         [(["k"],MetaTypeVar("T8"))],
-         [],
-         [],
-         []),
-        ([CEq(Int(),MetaTypeVar("T6"),"variable binding of [\"i\"]"),CEq(Int(),MetaTypeVar("T7"),"variable binding of [\"k\"]"),CEq(MetaTypeVar("T6"),MetaTypeVar("T7"),"variable binding of [\"j\"]")],
-         [(["i"],Int()),(["k"],Int()),(["j"],MetaTypeVar("T6"))],
-         [],
-         [])],
-    [])
-
-    // fu = !([["i"], ["k"]],
-    //        [ (["i"], Int())
-    //         , (["k"], Int())
-    //         , (["j"], MetaTypeVar("T0"))
-    //         ]); remove-bound
-    //foldrtest = ![1,2,3,4,5]; foldr(![], \ (x, xs) -> [x|xs] \)
-
 //     // list, list -> resultSet
 //     mergeUnify: (c, cs) -> (constraints', bindings', mgu, errs)
 //         where bindings    := <filter-bindings; flatten-list; bUnion> c;
