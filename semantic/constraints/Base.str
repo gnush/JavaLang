@@ -3,9 +3,6 @@ module Base
 imports
     include/JavaLang
 
-// TODO:
-//  merge-result-sets schould operate with add-binding rules to avoid stupid errors if changing the signature of result sets
-
 signature constructors
     CEq : Type * Type * String -> Constraint
     // CSubClass : Type * Type * String -> Constraint
@@ -96,12 +93,13 @@ rules
      * 
      * @type (List(result-set), List(Constraint)) -> result-set 
      */
-    merge-result-sets: (results, newConstraints) -> (constraints, bindings, [], [], errors)
+    merge-result-sets: (results, newConstraints) -> cRes
         where bindings    := <filter-bindings; flatten-list; merge-bindings> results;
               constraints := <concat> [newConstraints,
                                        <filter-constraints; flatten-list> results,
                                        <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results];
-              errors      := <filter-errors; flatten-list> results
+              errors      := <filter-errors; flatten-list> results;
+              cRes        := <update-errors> (<update-bindings> (<update-constraints> (<empty-result>, constraints), bindings), errors)
 
     /**
      * Merges multiple result sets
@@ -112,7 +110,8 @@ rules
      * 
      * @type (List(result-set), List(Constraint), binding) -> result-set 
      */
-    merge-result-sets(unify): (results, newConstraints, (x, t)) -> (constraints, bindings, [], errors)
+    // TODO: change me like on of your french codes
+    merge-result-sets(unify): (results, newConstraints, (x, t)) -> (constraints, bindings, [], [], errors)
         where newRes      := <update-bindings> (<empty-result>, [(x, t)]);
               results'    := [newRes|results]; 
         	  bindings    := <filter-bindings; flatten-list; merge-bindings; remove-all(?(x, _))> results';
@@ -129,21 +128,15 @@ rules
      * @param List of new bindings
      * 
      * @type (List(result-set), List(Constraint), List(binding)) -> result-set 
-     */
-    // merge-result-sets: (results, newConstraints, newVars) -> (constraints, bindings, [], errors)
-    //     where bindings    := <filter-bindings; flatten-list; merge-bindings> results;
-    //           constraints := <concat> [newConstraints,
-    //                                    <filter-constraints; flatten-list> results,
-    //                                    <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results];
-    //           errors      := <filter-errors; flatten-list> results
-              
-    // merge-result-sets: (results, newConstraints, newVars) -> (constraints, bindings', [], errors)
-    //     where bindings    := <filter-bindings; flatten-list; merge-bindings> results;
-    //           bindings'   := <remove-bound> (newVars, bindings);
-    //           constraints := <concat> [newConstraints,
-    //                                    <filter-constraints; flatten-list> results,
-    //                                    <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results]; debug(!"constraints: ");
-    //           errors      := <filter-errors; flatten-list> results
+     */              
+    merge-result-sets: (results, newConstraints, newVars) -> cRes
+        where bindings    := <filter-bindings; flatten-list; merge-bindings> results;
+              bindings'   := <remove-bound> (newVars, bindings);
+              constraints := <concat> [newConstraints,
+                                       <filter-constraints; flatten-list> results,
+                                       <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results];
+              errors      := <filter-errors; flatten-list> results;
+              cRes        := <update-errors> (<update-bindings> (<update-constraints> (<empty-result>, constraints), bindings'), errors)
 
     merge-result-sets = debug(!"merge-result-sets: "); fail
     
