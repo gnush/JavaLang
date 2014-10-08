@@ -28,13 +28,18 @@ rules
               cs   := [];
               // cRes := <foldr(!(Unit(), <empty-result>), \ ((Unit(), c), xs) -> <merge-result-sets> ([c, xs], []) \;
               //                                           \ ((UnitLocVar(vars), c), xs) -> <merge-result-sets> ([c, xs], [], vars) \)> results
-              [(_, cRes)] := <reverse; merge-block-stm> results
+              //[(_, cRes)] := <reverse; merge-block-stm> results
+              cRes := <merge-result-sets> (<map(Snd)> results, cs)
     
     // TODO: reverse list
     merge-block-stm: [] -> [(Unit(), <empty-result>)]
     merge-block-stm: [(t, c)] -> [(t, c)]
-    merge-block-stm: [(_, c1), (Unit(), c2) | cs] -> <merge-block-stm> [(Unit(), <merge-result-sets> ([c1, c2], []))|cs]
-    merge-block-stm: [(_, c1), (UnitLocVar(vars), c2) | cs] -> <merge-block-stm> [(Unit(), <merge-result-sets> ([c1, c2], [], vars))|cs]
+    merge-block-stm: [(_, c1), (_, c2)|cs] -> <merge-block-stm> [(Unit(), cRes) | cs]
+        where cRes := <merge-result-sets> ([c1, c2], [])
+    // merge-block-stm: [(_, c1), (Unit(), c2) | cs] -> <merge-block-stm> [(Unit(), cRes)|cs]
+    //     where cRes := <merge-result-sets> ([c1, c2], [])
+    // merge-block-stm: [(_, c1), (UnitLocVar(vars), c2) | cs] -> <merge-block-stm> [(Unit(), cRes)|cs]
+    //     where cRes := <merge-result-sets> ([c1, c2], [])
     
     generate-constraints: LocalVarDecStm((tRes, cRes)) -> (tRes, cRes)    
     generate-constraints: LocalVarDec(listAnnoOrVarMod, t, listVarDec) -> (UnitLocVar(vars), cRes)

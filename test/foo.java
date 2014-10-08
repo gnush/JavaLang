@@ -1,5 +1,5 @@
 {
-    final int j = 1;
-    int i = j, k = j;
-    k; 
+    int j;
+    int i;
+    i+j;
 }
