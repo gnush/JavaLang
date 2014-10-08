@@ -1,5 +1,4 @@
 {
     int j;
-    int i;
-    i+j;
+    int i = j;
 }
