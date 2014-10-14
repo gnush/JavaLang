@@ -7,6 +7,8 @@ imports
 // TODO
 // - Optional syntax parameters like in return    
 // - variable declaration
+// - Handle abrubt completion
+// - look why for loops does not match
 
 rules
     generate-constraints: Empty() -> (Unit(), <empty-result>)
@@ -47,12 +49,41 @@ rules
               sets := [cNew|<map(Snd)> listVarDec];
               cRes := <merge-result-sets> (sets, cs)
     
-    // TODO: resulting type is unit?
     generate-constraints: VarDec(x) -> (UnitVarDec(x), cRes)
         where tRes := MetaTypeVar(<newname> "T");
               cRes := <add-binding> (<empty-result>, (x, tRes))
     generate-constraints: VarDec(x, (t, c)) -> (UnitVarDec(x), cRes)
         where cRes := <add-binding> (c, (x, t))
+    
+    generate-constraints: While((tExpr, cExpr), (tStm, cStm)) -> (tRes, cRes)
+        where node := "While";
+              cs   := [CEq(tExpr, Boolean(), node)];
+              tRes := Unit();
+              cRes := <merge-result-sets> ([cExpr, cStm], cs)
+
+    generate-constraints: DoWhile((tStm, cStm), (tExpr, cExpr)) -> (tRes, cRes)
+        where node := "DoWhile";
+              cs   := [CEq(tExpr, Boolean(), node)];
+              tRes := Unit();
+              cRes := <merge-result-sets> ([cExpr, cStm], cs)
+    
+    generate-constraints: For(UnitLocVar(vars), Some((tExpr, cExpr)), updateExprs, (tStm, cStm)) -> (tRes, cRes)
+        where node  := "BasicFor";
+              cs    := [CEq(tExpr, Boolean(), node)];
+              tRes  := Unit();
+              cRes  := <merge-result-sets> ([cExpr, cStm| <map(Snd)> updateExprs], cs, vars)
+
+    generate-constraints: For(UnitLocVar(vars), None(), updateExprs, (tStm, cStm)) -> (tRes, cRes)
+        where node  := "BasicFor";
+              cs    := [];
+              tRes  := Unit();
+              cRes  := <merge-result-sets> ([cStm| <map(Snd)> updateExprs], cs, vars)
+    
+    // TODO: ???
+    generate-constraints: For(exprs1, expr, exprs2, stm) -> <fail>
+    
+    // expr is iterable or array type
+    generate-constraints: ForEach(formalParam, expr, stm) -> <fail>
     
     generate-constraints: Labeled(label, stm) -> <fail>
     generate-constraints: AssertStm(expr) -> <fail>
@@ -62,11 +93,6 @@ rules
     generate-constraints: SwitchGroup(switchLabel, blockStm) -> <fail>
     generate-constraints: Case(expr) -> <fail> // SwitchLabel
     generate-constraints: Default() -> <fail> // SwitchLabel
-    generate-constraints: While(expr, stm) -> <fail>
-    generate-constraints: DoWhile(stm, expr) -> <fail>
-    generate-constraints: For(localVarDec, expr, exprs, stm) -> <fail>
-    generate-constraints: For(exprs1, expr, exprs2, stm) -> <fail>
-    generate-constraints: ForEach(formalParam, expr, stm) -> <fail>
     // generate-constraints: Break() -> <fail>
     generate-constraints: Break(label) -> <fail> 
     // generate-constraints: Continue() -> <fail>
