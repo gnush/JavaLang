@@ -67,20 +67,14 @@ rules
               tRes := Unit();
               cRes := <merge-result-sets> ([cExpr, cStm], cs)
     
-    generate-constraints: For(UnitLocVar(vars), Some((tExpr, cExpr)), updateExprs, (tStm, cStm)) -> (tRes, cRes)
+    generate-constraints: For((UnitLocVar(vars), cVar), Some((tExpr, cExpr)), updateExprs, (tStm, cStm)) -> (tRes, cRes)
         where node  := "BasicFor";
               cs    := [CEq(tExpr, Boolean(), node)];
               tRes  := Unit();
-              cRes  := <merge-result-sets> ([cExpr, cStm| <map(Snd)> updateExprs], cs, vars)
-
-    generate-constraints: For(UnitLocVar(vars), None(), updateExprs, (tStm, cStm)) -> (tRes, cRes)
-        where node  := "BasicFor";
-              cs    := [];
-              tRes  := Unit();
-              cRes  := <merge-result-sets> ([cStm| <map(Snd)> updateExprs], cs, vars)
+              cRes  := <merge-result-sets> ([cVar, cExpr, cStm| <map(Snd)> updateExprs], cs, vars)
     
     // TODO: ???
-    generate-constraints: For(exprs1, expr, exprs2, stm) -> <fail>
+    generate-constraints: For(exprs1, expr, exprs2, stm) -> <debug(!"blaah"); fail>
     
     // expr is iterable or array type
     generate-constraints: ForEach(formalParam, expr, stm) -> <fail>
