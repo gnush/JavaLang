@@ -8,7 +8,6 @@ imports
 // - Optional syntax parameters like in return    
 // - variable declaration
 // - Handle abrubt completion
-// - look why for loops does not match
 
 rules
     generate-constraints: Empty() -> (Unit(), <empty-result>)
@@ -74,7 +73,7 @@ rules
               cRes  := <merge-result-sets> ([cVar, cExpr, cStm| <map(Snd)> updateExprs], cs, vars)
     
     // TODO: ???
-    generate-constraints: For(exprs1, expr, exprs2, stm) -> <debug(!"blaah"); fail>
+    generate-constraints: For(exprs1, expr, exprs2, stm) -> <fail>
     
     // expr is iterable or array type
     generate-constraints: ForEach(formalParam, expr, stm) -> <fail>
