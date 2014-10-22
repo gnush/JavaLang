@@ -94,12 +94,12 @@ rules
      * @type (List(result-set), List(Constraint)) -> result-set 
      */
     merge-result-sets: (results, newConstraints) -> cRes
-        where bindings    := <filter-bindings; flatten-list; merge-bindings> results;
+        where bindings    := <filter-binding-requirements; flatten-list; merge-bindings> results;
               constraints := <concat> [newConstraints,
                                        <filter-constraints; flatten-list> results,
-                                       <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results];
+                                       <filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results];
               errors      := <filter-errors; flatten-list> results;
-              cRes        := <update-errors> (<update-bindings> (<update-constraints> (<empty-result>, constraints), bindings), errors)
+              cRes        := <update-errors> (<update-binding-requirements> (<update-constraints> (<empty-result>, constraints), bindings), errors)
 
     /**
      * Merges multiple result sets
@@ -112,12 +112,12 @@ rules
      */
     // TODO: change me like on of your french codes
     merge-result-sets(unify): (results, newConstraints, (x, t)) -> (constraints, bindings, [], [], errors)
-        where newRes      := <update-bindings> (<empty-result>, [(x, t)]);
+        where newRes      := <update-binding-requirements> (<empty-result>, [(x, t)]);
               results'    := [newRes|results]; 
-        	  bindings    := <filter-bindings; flatten-list; merge-bindings; remove-all(?(x, _))> results';
+        	  bindings    := <filter-binding-requirements; flatten-list; merge-bindings; remove-all(?(x, _))> results';
               constraints := <concat> [newConstraints,
                                        <filter-constraints; flatten-list> results',
-                                       <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results'];
+                                       <filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results'];
               errors      := <filter-errors; flatten-list> results'
 
     /**
@@ -130,13 +130,13 @@ rules
      * @type (List(result-set), List(Constraint), List(binding)) -> result-set 
      */              
     merge-result-sets: (results, newConstraints, newVars) -> cRes
-        where bindings    := <filter-bindings; flatten-list; merge-bindings> results;
+        where bindings    := <filter-binding-requirements; flatten-list; merge-bindings> results;
               bindings'   := <remove-bound> (newVars, bindings);
               constraints := <concat> [newConstraints,
                                        <filter-constraints; flatten-list> results,
-                                       <filter-bindings; mk-isectCallList; map(isectConstraints); flatten-list> results];
+                                       <filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results];
               errors      := <filter-errors; flatten-list> results;
-              cRes        := <update-errors> (<update-bindings> (<update-constraints> (<empty-result>, constraints), bindings'), errors)
+              cRes        := <update-errors> (<update-binding-requirements> (<update-constraints> (<empty-result>, constraints), bindings'), errors)
 
     merge-result-sets = debug(!"merge-result-sets: "); fail
     
@@ -191,24 +191,24 @@ rules
     isectConstraints = debug(!"isectConstraints: "); fail
 
     constraints: (cs,  _,   _,   _,    _) -> cs
-    bindings:    (_,  bs,   _,   _,    _) -> bs
-    classes:     (_,   _, cls,   _,    _) -> cls
+    binding-requirements:    (_,  bs,   _,   _,    _) -> bs
+    binding-declarations:     (_,   _, cls,   _,    _) -> cls
     mgu:         (_,   _,   _, mgu,    _) -> mgu
     errors:      (_,   _,   _,   _, errs) -> errs
 
     filter-constraints = map(constraints)
-    filter-bindings = map(bindings)
-    filter-classes = map(classes)
+    filter-binding-requirements = map(binding-requirements)
+    filter-binding-declarations = map(binding-declarations)
     filter-mgu = map(mgu)
     filter-errors = map(errors)
     
-    update-constraints: (( _, bs, cls, mgu, errs), cs)   -> (cs, bs, cls, mgu, errs)
-    update-bindings:    ((cs,  _, cls, mgu, errs), bs)   -> (cs, bs, cls, mgu, errs)
-    update-classes:     ((cs, bs,   _, mgu, errs), cls)  -> (cs, bs, cls, mgu, errs)
-    update-mgu:         ((cs, bs, cls,   _, errs), mgu)  -> (cs, bs, cls, mgu, errs)
-    update-errors:      ((cs, bs, cls, mgu,    _), errs) -> (cs, bs, cls, mgu, errs)
+    update-constraints:          (( _, bs, cls, mgu, errs), cs)   -> (cs, bs, cls, mgu, errs)
+    update-binding-requirements: ((cs,  _, cls, mgu, errs), bs)   -> (cs, bs, cls, mgu, errs)
+    update-binding-declarations: ((cs, bs,   _, mgu, errs), cls)  -> (cs, bs, cls, mgu, errs)
+    update-mgu:                  ((cs, bs, cls,   _, errs), mgu)  -> (cs, bs, cls, mgu, errs)
+    update-errors:               ((cs, bs, cls, mgu,    _), errs) -> (cs, bs, cls, mgu, errs)
     
-    add-constraint: ((cs, bs, cls, mgu, errs), constraint) -> ([constraint|cs], bs, cls, mgu, errs)
-    add-binding:    ((cs, bs, cls, mgu, errs), binding)    -> (cs, [binding|bs], cls, mgu, errs)
-    add-class:      ((cs, bs, cls, mgu, errs), class)      -> (cs, bs, [class|cls], mgu, errs)
-    add-error:      ((cs, bs, cls, mgu, errs), error)      -> (cs, bs, cls, mgu, [error|errs])
+    add-constraint:          ((cs, bs, cls, mgu, errs), constraint) -> ([constraint|cs], bs, cls, mgu, errs)
+    add-binding-requirement: ((cs, bs, cls, mgu, errs), binding)    -> (cs, [binding|bs], cls, mgu, errs)
+    add-binding-declaration: ((cs, bs, cls, mgu, errs), class)      -> (cs, bs, [class|cls], mgu, errs)
+    add-error:               ((cs, bs, cls, mgu, errs), error)      -> (cs, bs, cls, mgu, [error|errs])

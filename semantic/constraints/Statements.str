@@ -44,15 +44,15 @@ rules
               cs   := [];
               vars := <map(\ (UnitVarDec(x), _) -> x \)> listVarDec;
               bNew := <map(\ x -> (x, t) \)> vars;
-              cNew := <update-bindings> (<empty-result>, bNew); 
+              cNew := <update-binding-requirements> (<empty-result>, bNew); 
               sets := [cNew|<map(Snd)> listVarDec];
               cRes := <merge-result-sets> (sets, cs)
     
     generate-constraints: VarDec(x) -> (UnitVarDec(x), cRes)
         where tRes := MetaTypeVar(<newname> "T");
-              cRes := <add-binding> (<empty-result>, (x, tRes))
+              cRes := <add-binding-requirement> (<empty-result>, (x, tRes))
     generate-constraints: VarDec(x, (t, c)) -> (UnitVarDec(x), cRes)
-        where cRes := <add-binding> (c, (x, t))
+        where cRes := <add-binding-requirement> (c, (x, t))
     
     generate-constraints: While((tExpr, cExpr), (tStm, cStm)) -> (tRes, cRes)
         where node := "While";

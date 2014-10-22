@@ -15,10 +15,10 @@ rules
     
     generate-constraints: ExprName(x) -> (tRes, cRes)
         where tRes := MetaTypeVar(<newname> "T");
-              cRes := <add-binding> (<empty-result>, (x, tRes))
+              cRes := <add-binding-requirement> (<empty-result>, (x, tRes))
     generate-constraints: ExprName(x, y) -> (tRes, cRes)
         where tRes := MetaTypeVar(<newname> "T");
-              cRes := <add-binding> (<empty-result>, (<conc> (x, y), tRes))
+              cRes := <add-binding-requirement> (<empty-result>, (<conc> (x, y), tRes))
 
     // generate-constraints: MethodName(x) -> [x]
     // generate-constraints: MethodName(x, y) -> <conc> (x, [y])
