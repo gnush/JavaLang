@@ -104,11 +104,11 @@ rules
                                          <filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results,
                                          <mk-binding-declaration-constraints> binding-decls];
               errors        := <filter-errors; flatten-list> results;
-              cRes          := <update-errors>
-                                (<update-binding-declarations>
-                                    (<update-binding-requirements>
-                                        (<update-constraints>
-                                            (<empty-result>, constraints), binding-reqs), binding-decls), errors)
+              cRes          := <update-errors> (
+                                <update-binding-declarations> (
+                                    <update-binding-requirements> (
+                                        <update-constraints> (
+                                            <empty-result>, constraints), binding-reqs), binding-decls), errors)
 
     /**
      * Merges multiple result sets
