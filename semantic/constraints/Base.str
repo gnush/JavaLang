@@ -12,6 +12,9 @@ signature constructors
     CWidenedEq : Type * Type * Type * String -> Constraint // t1 must be equal to the widening of t1 and t2
     CSortOf : Type * List(Type) * STRING -> Constraint           // lhs Type must be one of rhs Types
     
+    // failure constraints
+    CMultiDeclaration : STRING * List(Type) -> Constraint // x is bound to various types in the same scope. (this is an error even if all types are equal) 
+    
     MetaTypeVar : String -> Type
     PrimTypeVar : String -> Type                        // primitive type var
     RefTypeVar : String -> Type                         // reference type var
@@ -94,12 +97,18 @@ rules
      * @type (List(result-set), List(Constraint)) -> result-set 
      */
     merge-result-sets: (results, newConstraints) -> cRes
-        where bindings    := <filter-binding-requirements; flatten-list; merge-bindings> results;
-              constraints := <concat> [newConstraints,
-                                       <filter-constraints; flatten-list> results,
-                                       <filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results];
-              errors      := <filter-errors; flatten-list> results;
-              cRes        := <update-errors> (<update-binding-requirements> (<update-constraints> (<empty-result>, constraints), bindings), errors)
+        where binding-reqs  := <filter-binding-requirements; flatten-list; merge-binding-requirements> results;
+              binding-decls := <filter-binding-declarations; flatten-list>;
+              constraints   := <concat> [newConstraints,
+                                         <filter-constraints; flatten-list> results,
+                                         <filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results,
+                                         <mk-binding-declaration-constraints> binding-decls];
+              errors        := <filter-errors; flatten-list> results;
+              cRes          := <update-errors>
+                                (<update-binding-declarations>
+                                    (<update-binding-requirements>
+                                        (<update-constraints>
+                                            (<empty-result>, constraints), binding-reqs), binding-decls), errors)
 
     /**
      * Merges multiple result sets
@@ -114,7 +123,7 @@ rules
     merge-result-sets(unify): (results, newConstraints, (x, t)) -> (constraints, bindings, [], [], errors)
         where newRes      := <update-binding-requirements> (<empty-result>, [(x, t)]);
               results'    := [newRes|results]; 
-        	  bindings    := <filter-binding-requirements; flatten-list; merge-bindings; remove-all(?(x, _))> results';
+        	  bindings    := <filter-binding-requirements; flatten-list; merge-binding-requirements; remove-all(?(x, _))> results';
               constraints := <concat> [newConstraints,
                                        <filter-constraints; flatten-list> results',
                                        <filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results'];
@@ -130,13 +139,13 @@ rules
      * @type (List(result-set), List(Constraint), List(binding)) -> result-set 
      */              
     merge-result-sets: (results, newConstraints, newVars) -> cRes
-        where bindings    := <filter-binding-requirements; flatten-list; merge-bindings> results;
-              bindings'   := <remove-bound> (newVars, bindings);
-              constraints := <concat> [newConstraints,
-                                       <filter-constraints; flatten-list> results,
-                                       <filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results];
-              errors      := <filter-errors; flatten-list> results;
-              cRes        := <update-errors> (<update-binding-requirements> (<update-constraints> (<empty-result>, constraints), bindings'), errors)
+        where binding-reqs   := <filter-binding-requirements; flatten-list; merge-binding-requirements> results;
+              bindings-reqs' := <remove-bound> (newVars, binding-reqs);
+              constraints    := <concat> [newConstraints,
+                                          <filter-constraints; flatten-list> results,
+                                          <filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results];
+              errors         := <filter-errors; flatten-list> results;
+              cRes           := <update-errors> (<update-binding-requirements> (<update-constraints> (<empty-result>, constraints), bindings-reqs'), errors)
 
     merge-result-sets = debug(!"merge-result-sets: "); fail
     
@@ -171,10 +180,23 @@ rules
 //               
 //     mergeUnify = debug(!"mergeUnify: "); fail
     
-    merge-bindings: [] -> []
-    merge-bindings: [(x, t)|bs] -> [(x, t)|<merge-bindings> bs']
+    merge-binding-requirements: [] -> []
+    merge-binding-requirements: [(x, t)|bs] -> [(x, t)|<merge-binding-requirements> bs']
         where bs' := <filter(not(?(x, _)))> bs
-    merge-bindings = debug(!"bUnion: "); fail
+    merge-binding-requirements = debug(!"merge-binding-requirements: "); fail
+
+    test-decl = !(<test-decl0>, <test-decl1>)
+    test-decl0 = ![("x", Int()), ("y", Int()), ("b0", Boolean()), ("b1", Boolean())]; mk-binding-declaration-constraints
+    test-decl1 = ![("x", Int()), ("y", Int()), ("x", Boolean()), ("x", Int())]; mk-binding-declaration-constraints 
+
+    mk-binding-declaration-constraints: [] -> []
+    mk-binding-declaration-constraints: [(x, t)|bs] -> <conc> (c, <mk-binding-declaration-constraints> bs')
+        where types := <filter(?(x, _); Snd)> bs;
+              bs'   := <filter(not(?(x, _)))> bs;
+              c     := <if equal(|types, [])
+                            then ![] else
+                                 ![CMultiDeclaration(x, [t|types])] end> 
+    mk-binding-declaration-constraints = debug(!"mk-binding-declaration-constraints"); fail 
     
     /** forall x in list. (elem, x) */
     mk-tuples: (elem, list) -> <map(\ x -> (elem, x) \)> list
