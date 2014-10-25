@@ -24,18 +24,18 @@ rules
               cs   := [CEq(tCond, Boolean(), node)];
               cRes := <merge-result-sets> ([cCond, cThen, cElse], cs)
     
-    generate-constraints: Block(results) -> (Unit(), cRes)
+    generate-constraints: Block(results) -> <fail> //(Unit(), cRes)
         where node := "Block";
-              cs   := [];
-              [(_, cRes)] := <merge-block-stm> [(Unit(), <empty-result>)|<reverse> results] // TODO: get rid of this (possible if merge-block-stm is changed)
+              cs   := []
+              //[(_, cRes)] := <merge-block-stm> [(Unit(), <empty-result>)|<reverse> results] // TODO: get rid of this (possible if merge-block-stm is changed)
     
     // TODO: reverse list and start with an empty result
-    merge-block-stm: [] -> [(Unit(), <empty-result>)]
-    merge-block-stm: [(t, c)] -> [(t, c)]
-    merge-block-stm: [(_, c1), (Unit(), c2) | cs] -> <merge-block-stm> [(Unit(), cRes)|cs]
-        where cRes := <merge-result-sets> ([c1, c2], [])
-    merge-block-stm: [(_, c1), (UnitLocVar(vars), c2) | cs] -> <merge-block-stm> [(Unit(), cRes)|cs]
-        where cRes := <merge-result-sets> ([c1, c2], [], vars)
+    // merge-block-stm: [] -> [(Unit(), <empty-result>)]
+    // merge-block-stm: [(t, c)] -> [(t, c)]
+    // merge-block-stm: [(_, c1), (Unit(), c2) | cs] -> <merge-block-stm> [(Unit(), cRes)|cs]
+    //     where cRes := <merge-result-sets> ([c1, c2], [])
+    // merge-block-stm: [(_, c1), (UnitLocVar(vars), c2) | cs] -> <merge-block-stm> [(Unit(), cRes)|cs]
+    //     where cRes := <merge-result-sets> ([c1, c2], [], vars)
     
     generate-constraints: LocalVarDecStm((tRes, cRes)) -> (tRes, cRes)
     // TODO: annotations like final?    
@@ -48,9 +48,10 @@ rules
               sets := [cNew|<map(Snd)> listVarDec];
               cRes := <merge-result-sets> (sets, cs)
     
-    generate-constraints: VarDec(x) -> (UnitVarDec(x), cRes)
+    generate-constraints: VarDec(x) -> (Unit(), cRes)
         where tRes := MetaTypeVar(<newname> "T");
               cRes := <add-binding-requirement> (<empty-result>, (x, tRes))
+              
     generate-constraints: VarDec(x, (t, c)) -> (UnitVarDec(x), cRes)
         where cRes := <add-binding-requirement> (c, (x, t))
     
