@@ -21,8 +21,8 @@ signature constructors
     NullType : Type // is this needed?
 
     Unit : Type
-    // UnitLocVar : List(Id) -> Type
-    // UnitVarDec : Id -> Type
+    UnitLocVar : List(Id) -> Type
+    UnitVarDec : Id -> Type
 
     DeclLocal : STRING * Type -> Declaration
 rules
@@ -99,7 +99,7 @@ rules
      */
     merge-result-sets: (results, newConstraints) -> cRes
         where binding-reqs  := <filter-binding-requirements; flatten-list; merge-binding-requirements> results;
-              binding-decls := <filter-binding-declarations; flatten-list>;
+              binding-decls := <filter-binding-declarations; flatten-list> results;
               constraints   := <concat> [newConstraints,
                                          <filter-constraints; flatten-list> results,
                                          <filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results,
@@ -114,15 +114,14 @@ rules
 
     merge-result-sets(local-var-decl-switch): (results, newConstraints) -> cRes
 	    where binding-reqs0  := <filter-binding-requirements; flatten-list; merge-binding-requirements> results;
-	          binding-decls0 := <filter-binding-declarations; flatten-list>;
+	          binding-decls0 := <filter-binding-declarations; flatten-list> results; // TODO: remove multi bound variables to avoid the generation of duplicate constraints (preserve on of them)
 	         (binding-reqs, binding-decls) :=
 	               <if local-var-decl-switch
 	                   // remove bindings
 	                   then !(<remove-bound-requirements> (binding-decls0, binding-reqs0),
-	                          []) // TODO: just remove local var decls (needed if we get more sorts of decls)
+	                          <remove-local-declarations> binding-decls0)
 	                   // do not remove bindings
-	                   else !(<filter-binding-requirements; flatten-list; merge-binding-requirements> results,
-	                          <filter-binding-declarations; flatten-list>) // TODO: remove multi bound variables to avoid the generation of duplicate constraints (preserve on of them)
+	                   else !(binding-reqs0, binding-decls0)
 	                end>;
               constraints    := <concat> [newConstraints,
                                           <filter-constraints; flatten-list> results,
@@ -133,7 +132,7 @@ rules
                                  <update-binding-declarations> (
                                   <update-binding-requirements> (
                                    <update-constraints> (
-                                    <empty-result>, constraints), binding-reqs), binding-decls), errors) 
+                                    <empty-result>, constraints), binding-reqs), binding-decls), errors)
 
     /**
      * Merges multiple result sets
@@ -192,13 +191,12 @@ rules
      * @param List of binding requirements
      */
     // TODO: make use of constructors
-    remove-bound-requirements: (decls, reqs) -> (new-reqs)
-        where decl-vars := <map(Fst)> decls;
-              new-reqs  := <foldr(![], \ (DeclLocal(x, t), xs) -> <if !(x, decl-vars); elem
-                                                                     then !xs
-                                                                     else ![DeclLocal(x, t)|xs]
-                                                                   end> \)> reqs
-    remove-bound-requirements = debug(!"remove-binding-declarations-from-requirements"); fail
+    remove-bound-requirements: (decls, reqs) -> <foldr(![], \ (DeclLocal(x, t), xs) -> <if !(x, decl-vars); elem
+                                                                                            then !xs
+                                                                                            else ![DeclLocal(x, t)|xs]
+                                                                                        end> \)> reqs
+        where decl-vars := <map(Fst)> decls
+    remove-bound-requirements = debug(!"remove-bound-requirements"); fail
 
     /**
      * Removes all local declarations.
@@ -260,11 +258,11 @@ rules
         where c := <filter(?(x, _) ; \ (_, t') -> CEq(t, t', <conc-strings> ("variable binding of ", <write-to-string> x)) \)> ys
     isectConstraints = debug(!"isectConstraints: "); fail
 
-    constraints: (cs,  _,   _,   _,    _) -> cs
-    binding-requirements:    (_,  bs,   _,   _,    _) -> bs
-    binding-declarations:     (_,   _, cls,   _,    _) -> cls
-    mgu:         (_,   _,   _, mgu,    _) -> mgu
-    errors:      (_,   _,   _,   _, errs) -> errs
+    constraints:          (cs,  _,    _,   _,    _) -> cs
+    binding-requirements: (_,  bs,    _,   _,    _) -> bs
+    binding-declarations: (_,   _, dcls,   _,    _) -> dcls
+    mgu:                  (_,   _,    _, mgu,    _) -> mgu
+    errors:               (_,   _,    _,   _, errs) -> errs
 
     filter-constraints = map(constraints)
     filter-binding-requirements = map(binding-requirements)
@@ -272,13 +270,13 @@ rules
     filter-mgu = map(mgu)
     filter-errors = map(errors)
     
-    update-constraints:          (( _, bs, cls, mgu, errs), cs)   -> (cs, bs, cls, mgu, errs)
-    update-binding-requirements: ((cs,  _, cls, mgu, errs), bs)   -> (cs, bs, cls, mgu, errs)
-    update-binding-declarations: ((cs, bs,   _, mgu, errs), cls)  -> (cs, bs, cls, mgu, errs)
-    update-mgu:                  ((cs, bs, cls,   _, errs), mgu)  -> (cs, bs, cls, mgu, errs)
-    update-errors:               ((cs, bs, cls, mgu,    _), errs) -> (cs, bs, cls, mgu, errs)
+    update-constraints:          (( _, bs, dcls, mgu, errs), cs)     -> (cs, bs, dcls, mgu, errs)
+    update-binding-requirements: ((cs,  _, dcls, mgu, errs), bs)     -> (cs, bs, dcls, mgu, errs)
+    update-binding-declarations: ((cs, bs,    _, mgu, errs), dcls)   -> (cs, bs, dcls, mgu, errs)
+    update-mgu:                  ((cs, bs, dcls,   _, errs), mgu)    -> (cs, bs, dcls, mgu, errs)
+    update-errors:               ((cs, bs, dcls, mgu,    _), errs)   -> (cs, bs, dcls, mgu, errs)
     
-    add-constraint:          ((cs, bs, cls, mgu, errs), constraint) -> ([constraint|cs], bs, cls, mgu, errs)
-    add-binding-requirement: ((cs, bs, cls, mgu, errs), binding)    -> (cs, [binding|bs], cls, mgu, errs)
-    add-binding-declaration: ((cs, bs, cls, mgu, errs), class)      -> (cs, bs, [class|cls], mgu, errs)
-    add-error:               ((cs, bs, cls, mgu, errs), error)      -> (cs, bs, cls, mgu, [error|errs])
+    add-constraint:          ((cs, bs, dcls, mgu, errs), constraint)  -> ([constraint|cs], bs, dcls, mgu, errs)
+    add-binding-requirement: ((cs, bs, dcls, mgu, errs), binding)     -> (cs, [binding|bs], dcls, mgu, errs)
+    add-binding-declaration: ((cs, bs, dcls, mgu, errs), declaration) -> (cs, bs, [declaration|dcls], mgu, errs)
+    add-error:               ((cs, bs, dcls, mgu, errs), error)       -> (cs, bs, dcls, mgu, [error|errs])
