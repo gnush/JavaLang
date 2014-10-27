@@ -3,6 +3,9 @@ module Base
 imports
     include/JavaLang
 
+// TODO:
+// - Bug: int i = i; should be some error
+
 signature constructors
     CEq : Type * Type * String -> Constraint
     // CSubClass : Type * Type * String -> Constraint
@@ -110,7 +113,6 @@ rules
                                         <update-constraints> (
                                             <empty-result>, constraints), binding-reqs), binding-decls), errors)
 
-
     merge-result-sets(local-var-decl-switch): (results, newConstraints) -> cRes
 	    where binding-reqs0  := <filter-binding-requirements; flatten-list; merge-binding-requirements> results;
 	          binding-decls0 := <filter-binding-declarations; flatten-list> results; // TODO: remove multi bound variables to avoid the generation of duplicate constraints (preserve on of them)
@@ -120,12 +122,13 @@ rules
 	                   then !(<remove-bound-requirements> (binding-decls0, binding-reqs0),
 	                          []) //<remove-local-declarations> binding-decls0)
 	                   // do not remove bindings
-	                   else !(binding-reqs0, binding-decls0)
+	                   else !(binding-reqs0, binding-decls0) 
 	                end>;
               constraints    := <concat> [newConstraints,
                                           <filter-constraints; flatten-list> results,
                                           <if local-var-decl-switch
-                                              then <conc; mk-isectCallList; map(isectConstraints); flatten-list> (<filter-binding-requirements> results, <filter-binding-declarations> results)
+                                              then <conc> (<conc; mk-isectCallList; map(isectConstraints); flatten-list> (<filter-binding-requirements> results, <filter-binding-declarations> results),
+                                                           <mk-double-declaration-constraints> binding-decls0)
                                               else !<filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results
                                            end>]; //<mk-binding-declaration-constraints> (binding-reqs, binding-decls)];
               errors         := <filter-errors; flatten-list> results;
@@ -173,6 +176,7 @@ rules
               cRes           := <update-errors> (<update-binding-requirements> (<update-constraints> (<empty-result>, constraints), binding-reqs'), errors)
 
     merge-result-sets = debug(!"merge-result-sets: "); fail
+    merge-result-sets(param) = debug(!"merge-result-sets(param): "); fail
     
     /**
      * Removes all bindings from bs whose variable is in bound. 
@@ -307,3 +311,6 @@ rules
     add-binding-requirement: ((cs, bs, dcls, mgu, errs), binding)     -> (cs, [binding|bs], dcls, mgu, errs)
     add-binding-declaration: ((cs, bs, dcls, mgu, errs), declaration) -> (cs, bs, [declaration|dcls], mgu, errs)
     add-error:               ((cs, bs, dcls, mgu, errs), error)       -> (cs, bs, dcls, mgu, [error|errs])
+    
+    add-constraints: (res, constraints) -> <update-constraints> (res, <conc> (constraints, cs)) 
+        where cs := <constraints> res

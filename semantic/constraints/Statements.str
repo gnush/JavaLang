@@ -24,29 +24,20 @@ rules
               cs   := [CEq(tCond, Boolean(), node)];
               cRes := <merge-result-sets> ([cCond, cThen, cElse], cs)
     
-    generate-constraints: Block(results) -> <fail> //(Unit(), cRes)
+    generate-constraints: Block(results) -> (Unit(), cRes)
         where node := "Block";
-              cs   := []
+              cs   := <map(Snd); filter-binding-declarations; flatten-list; mk-double-declaration-constraints> results;
+              cTmp := <merge-block-stm> <map(Snd); reverse> results;
+              cRes := <add-constraints> (cTmp, cs)
               //[(_, cRes)] := <merge-block-stm> [(Unit(), <empty-result>)|<reverse> results] // TODO: get rid of this (possible if merge-block-stm is changed)
     
-    // TODO: reverse list and start with an empty result
-    // merge-block-stm: [] -> [(Unit(), <empty-result>)]
-    // merge-block-stm: [(t, c)] -> [(t, c)]
-    // merge-block-stm: [(_, c1), (Unit(), c2) | cs] -> <merge-block-stm> [(Unit(), cRes)|cs]
-    //     where cRes := <merge-result-sets> ([c1, c2], [])
-    // merge-block-stm: [(_, c1), (UnitLocVar(vars), c2) | cs] -> <merge-block-stm> [(Unit(), cRes)|cs]
-    //     where cRes := <merge-result-sets> ([c1, c2], [], vars)
+    merge-block-stm: [] -> <empty-result>
+    merge-block-stm: [c] -> <merge-result-sets(id)> ([c], [])
+    merge-block-stm: [c1, c2|results] -> <merge-block-stm> [cRes|results]
+        where cRes := <merge-result-sets(id)> ([c1, c2], [])
+    merge-block-stm = debug(!"merge-block-stm: "); fail
     
     generate-constraints: LocalVarDecStm((tRes, cRes)) -> (Unit(), cRes)
-    // TODO: annotations like final?    
-    // generate-constraints: LocalVarDec(listAnnoOrVarMod, t, listVarDec) -> (UnitLocVar(vars), cRes)
-    //     where node := "LocalVarDec";
-    //           cs   := [];
-    //           vars := <map(\ (UnitVarDec(x), _) -> x \)> listVarDec;
-    //           bNew := <map(\ x -> (x, t) \)> vars;
-    //           cNew := <update-binding-requirements> (<empty-result>, bNew); 
-    //           sets := [cNew|<map(Snd)> listVarDec];
-    //           cRes := <merge-result-sets> (sets, cs)
 
     generate-constraints: LocalVarDec(listAnnoOrVarMod, t, listVarDecRes) -> (t, cRes)
         where node      := "LocalVarDec";
@@ -54,15 +45,14 @@ rules
               cs        := <map(\ type -> CEq(t, type, node) \)> declTypes;
               sets      := <map(Snd)> listVarDecRes;
               cRes      := <merge-result-sets(false)> (sets, cs)
-              
-    
+
     generate-constraints: VarDec(x) -> (tRes, cRes)
         where tRes := MetaTypeVar(<newname> "T");
               cRes := <add-binding-declaration> (<empty-result>, (x, tRes))
-              
+
     generate-constraints: VarDec(x, (t, c)) -> (t, cRes)
         where cRes := <add-binding-declaration> (c, (x, t))
-    
+
     generate-constraints: While((tExpr, cExpr), (tStm, cStm)) -> (tRes, cRes)
         where node := "While";
               cs   := [CEq(tExpr, Boolean(), node)];
