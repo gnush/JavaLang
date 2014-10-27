@@ -1,6 +1,2 @@
-{
-    int i = 1;
-    int j;
-    int j;
-    int i;
-}
+for(int i=0; i<10; i++)
+    i;

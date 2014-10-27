@@ -29,7 +29,6 @@ rules
               cs   := <map(Snd); filter-binding-declarations; flatten-list; mk-double-declaration-constraints> results;
               cTmp := <merge-block-stm> <map(Snd); reverse> results;
               cRes := <add-constraints> (cTmp, cs)
-              //[(_, cRes)] := <merge-block-stm> [(Unit(), <empty-result>)|<reverse> results] // TODO: get rid of this (possible if merge-block-stm is changed)
     
     merge-block-stm: [] -> <empty-result>
     merge-block-stm: [c] -> <merge-result-sets(id)> ([c], [])
@@ -65,11 +64,11 @@ rules
               tRes := Unit();
               cRes := <merge-result-sets> ([cExpr, cStm], cs)
     
-    // generate-constraints: For((UnitLocVar(vars), cVar), Some((tExpr, cExpr)), updateExprs, (tStm, cStm)) -> (tRes, cRes)
-    //     where node  := "BasicFor";
-    //           cs    := [CEq(tExpr, Boolean(), node)];
-    //           tRes  := Unit();
-    //           cRes  := <merge-result-sets> ([cVar, cExpr, cStm| <map(Snd)> updateExprs], cs, vars)
+    generate-constraints: For((tVar, cVar), Some((tExpr, cExpr)), updateExprs, (tStm, cStm)) -> (tRes, cRes)
+        where node := "BasicFor";
+              cs   := [CEq(tExpr, Boolean(), node)];
+              tRes := Unit();
+              cRes := <merge-result-sets(id)> ([cVar, cExpr, cStm|<map(Snd)> updateExprs], cs)
     
     // TODO: ???
     generate-constraints: For(exprs1, expr, exprs2, stm) -> <fail>
