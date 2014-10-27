@@ -7,6 +7,7 @@ imports
 // TODO
 // - Optional syntax parameters like in return    
 // - variable declaration
+//    -  Bug: int i = i; should be some error
 // - Handle abrubt completion
 
 rules

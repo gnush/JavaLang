@@ -3,9 +3,6 @@ module Base
 imports
     include/JavaLang
 
-// TODO:
-// - Bug: int i = i; should be some error
-
 signature constructors
     CEq : Type * Type * String -> Constraint
     // CSubClass : Type * Type * String -> Constraint
