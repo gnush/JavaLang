@@ -3,15 +3,42 @@ module Main
 imports
     include/JavaLang
     semantic/constraints/Main
+    semantic/constraints/Base
+
+// TODO:
+// - unification
+//  - CEq
+//  - CWidenedEq
 
 rules
     /**
      * Unifies a set of constraints.
      * 
      * @param A set of constraints to solve.
-     * @param An initial mgu. 
      * 
-     * @returns An set of unsolvable constraints (errors)
+     * @returns A set of constraints that might be solvable with further knowledge.
+     * @returns A set of unsolvable constraints (errors)
      * @returns An (partial) unifier.
      */
+    unify: ([], mCs, errs, mgu) -> (mCs, errs, mgu)
+    
+    unify: ([CSortOf(type, types, node)|cs], mCs, errs, mgu) -> <if <elem> (type, types)
+                                                                    then <unify> (cs, mCs, errs, mgu)
+                                                                    else <unify> (cs, mCs, [CSortOf(type, types, node)|errs], mgu)
+                                                                 end>
+    
+    unify: ([CWidenablePrim(t1, t2, node)|cs], mCs, errs, mgu) -> <if <widen-prim> (t1, t2)
+                                                                    then <unify> (cs, mCs, errs, mgu)
+                                                                    else <unify> (cs, mCs, [CWidenablePrim(t1, t2, node)|errs], mgu)
+                                                                   end>
+
+    unify: ([CWidenablePrimString(t1, t2, node)|cs], mCs, errs, mgu) -> <if <widen-prim-string> (t1, t2)
+                                                                            then <unify> (cs, mCs, errs, mgu)
+                                                                            else <unify> (cs, mCs, [CWidenablePrim(t1, t2, node)|errs], mgu)
+                                                                         end> 
+    
+    unify: ([CMultiDeclaration(t, types)|cs], mCs, errs, mgu) -> <unify> (cs, mCs, [CMultiDeclaration(t, types)|errs], mgu)
+    
     unify = debug(!"unify: "); fail
+
+    
