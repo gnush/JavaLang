@@ -1,0 +1,17 @@
+module Main
+
+imports
+    include/JavaLang
+    semantic/constraints/Main
+
+rules
+    /**
+     * Unifies a set of constraints.
+     * 
+     * @param A set of constraints to solve.
+     * @param An initial mgu. 
+     * 
+     * @returns An set of unsolvable constraints (errors)
+     * @returns An (partial) unifier.
+     */
+    unify = debug(!"unify: "); fail
