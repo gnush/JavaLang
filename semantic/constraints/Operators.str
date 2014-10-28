@@ -8,6 +8,7 @@ module constraints/Operators
 imports
     include/JavaLang
     semantic/constraints/Base
+    semantic/unification/Substitution
 
 rules
 //     4.2.2 Integer Operations
@@ -45,91 +46,102 @@ rules
 // The numerical operators, which result in a value of type int or long:
     // The unary plus and minus operators + and - (§15.15.3, §15.15.4)    
     generate-constraints: Plus((t, c))  -> (tRes, cRes)
-        where tRes := MetaTypeVar(<newname> "T"); 
+        where tTmp := MetaTypeVar(<newname> "T"); 
               cs   := [CSortOf(t, <numerical-types>, "unary plus"),
-                       CEq(t, tRes, "unary plus"), // TODO: type widening to int if t is 'below'
-                       CSortOf(tRes, <numerical-operator-return-types>, "unary plus")];
-              cRes := <merge-result-sets> ([c], cs)
+                       CEq(t, tTmp, "unary plus"), // TODO: type widening to int if t is 'below'
+                       CSortOf(tTmp, <numerical-operator-return-types>, "unary plus")];
+              cRes := <merge-result-sets> ([c], cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
     generate-constraints: Minus((t, c)) -> (tRes, cRes)
-        where tRes := MetaTypeVar(<newname> "T"); 
+        where tTmp := MetaTypeVar(<newname> "T"); 
               cs   := [CSortOf(t, <numerical-types>, "unary minus"),
-                       CEq(t, tRes, "unary minus"),
-                       CSortOf(tRes, <numerical-operator-return-types>, "unary minus")];
-              cRes := <merge-result-sets> ([c], cs)
+                       CEq(t, tTmp, "unary minus"),
+                       CSortOf(tTmp, <numerical-operator-return-types>, "unary minus")];
+              cRes := <merge-result-sets> ([c], cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
     // The multiplicative operators *, /, and % (§15.17)    
     generate-constraints: Mul((t1, c1), (t2, c2)) -> (tRes, cRes)
-        where tRes := MetaTypeVar(<newname> "T");
+        where tTmp := MetaTypeVar(<newname> "T");
               cs   := [CWidenablePrim(t1, t2, "multiplication"),
                        CSortOf(t1, <numerical-types>, "multiplication"),
                        CSortOf(t2, <numerical-types>, "multiplication"),
-                       CSortOf(tRes, <numerical-operator-return-types>, "multiplication"),
-                       CWidenedEq(tRes, t1, t2, "multiplication")]; // TODO: tRes must be equal to the widened type of t1 and t2
-              cRes := <merge-result-sets> ([c1, c2], cs)
+                       CSortOf(tTmp, <numerical-operator-return-types>, "multiplication"),
+                       CWidenedEq(tTmp, t1, t2, "multiplication")]; // TODO: tRes must be equal to the widened type of t1 and t2
+              cRes := <merge-result-sets> ([c1, c2], cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
     generate-constraints: Div((t1, c1), (t2, c2)) -> (tRes, cRes)
-        where tRes := MetaTypeVar(<newname> "T");
+        where tTmp := MetaTypeVar(<newname> "T");
               cs   := [CWidenablePrim(t1, t2, "division"),
                        CSortOf(t1, <numerical-types>, "division"),
                        CSortOf(t2, <numerical-types>, "division"),
-                       CSortOf(tRes, <numerical-operator-return-types>, "division"),
-                       CWidenedEq(tRes, t1, t2, "division")]; // TODO: tRes must be equal to the widened type of t1 and t2
-              cRes := <merge-result-sets> ([c1, c2], cs)
+                       CSortOf(tTmp, <numerical-operator-return-types>, "division"),
+                       CWidenedEq(tTmp, t1, t2, "division")]; // TODO: tRes must be equal to the widened type of t1 and t2
+              cRes := <merge-result-sets> ([c1, c2], cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
     generate-constraints: Remain((t1, c1), (t2, c2)) -> (tRes, cRes)
-        where tRes := MetaTypeVar(<newname> "T");
+        where tTmp := MetaTypeVar(<newname> "T");
               cs   := [CWidenablePrim(t1, t2, "remainder"),
                        CSortOf(t1, <numerical-types>, "remainder"),
                        CSortOf(t2, <numerical-types>, "remainder"),
-                       CSortOf(tRes, <numerical-operator-return-types>, "remainder"),
-                       CWidenedEq(tRes, t1, t2, "remainder")]; // TODO: tRes must be equal to the widened type of t1 and t2
-              cRes := <merge-result-sets> ([c1, c2], cs)
+                       CSortOf(tTmp, <numerical-operator-return-types>, "remainder"),
+                       CWidenedEq(tTmp, t1, t2, "remainder")]; // TODO: tRes must be equal to the widened type of t1 and t2
+              cRes := <merge-result-sets> ([c1, c2], cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
     // The additive operators + and - (§15.18) 
     generate-constraints: Plus((t1, c1), (t2, c2))  -> (tRes, cRes) // TODO: String
-        where tRes := MetaTypeVar(<newname> "T");
+        where tTmp := MetaTypeVar(<newname> "T");
               node := "binary plus";
               cs   := [CWidenablePrimString(t1, t2, node),
-                       CWidenedEq(tRes, t1, t2, node), // TODO: new string constraint needed?
+                       CWidenedEq(tTmp, t1, t2, node), // TODO: new string constraint needed?
                        CSortOf(t1, [<string-type>|<numerical-types>], node),
                        CSortOf(t2, <numerical-types>, node),
-                       CSortOf(tRes, [<string-type>|<numerical-operator-return-types>], node)];
-              cRes := <merge-result-sets> ([c1, c2], cs)
+                       CSortOf(tTmp, [<string-type>|<numerical-operator-return-types>], node)];
+              cRes := <merge-result-sets> ([c1, c2], cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
     generate-constraints: Minus((t1, c1), (t2, c2)) -> (tRes, cRes)
-        where tRes := MetaTypeVar(<newname> "T");
+        where tTmp := MetaTypeVar(<newname> "T");
               node := "binary minus";
               cs   := [CWidenablePrim(t1, t2, node),
-                       CWidenedEq(tRes, t1, t2, node),
+                       CWidenedEq(tTmp, t1, t2, node),
                        CSortOf(t1, <numerical-types>, node),
                        CSortOf(t2, <numerical-types>, node),
-                       CSortOf(tRes, <numerical-operator-return-types>, node)];
-              cRes := <merge-result-sets> ([c1, c2], cs)
+                       CSortOf(tTmp, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c1, c2], cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
     // The increment operator ++, both prefix (§15.15.1) and postfix (§15.14.2)
     generate-constraints: PreIncr((t, c))  -> (tRes, cRes)
         where node := "pre increment";
-              tRes := MetaTypeVar(<newname> "T");
-              cs   := [CEq(t, tRes, node),
+              tTmp := MetaTypeVar(<newname> "T");
+              cs   := [CEq(t, tTmp, node),
                        CSortOf(t, <numerical-types>, node),
-                       CSortOf(tRes, <numerical-operator-return-types>, node)];
-              cRes := <merge-result-sets> ([c], cs)
+                       CSortOf(tTmp, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c], cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
     generate-constraints: PostIncr((t, c)) -> (tRes, cRes)
         where node := "post increment";
-              tRes := MetaTypeVar(<newname> "T");
-              cs   := [CEq(t, tRes, node),
+              tTmp := MetaTypeVar(<newname> "T");
+              cs   := [CEq(t, tTmp, node),
                        CSortOf(t, <numerical-types>, node),
-                       CSortOf(tRes, <numerical-operator-return-types>, node)];
-              cRes := <merge-result-sets> ([c], cs)
+                       CSortOf(tTmp, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c], cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
 	// The decrement operator --, both prefix (§15.15.2) and postfix (§15.14.3)
 	generate-constraints: PreDecr((t, c))  -> (tRes, cRes)
         where node := "pre decrement";
-              tRes := MetaTypeVar(<newname> "T");
-              cs   := [CEq(t, tRes, node),
+              tTmp := MetaTypeVar(<newname> "T");
+              cs   := [CEq(t, tTmp, node),
                        CSortOf(t, <numerical-types>, node),
-                       CSortOf(tRes, <numerical-operator-return-types>, node)];
-              cRes := <merge-result-sets> ([c], cs)
+                       CSortOf(tTmp, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c], cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
     generate-constraints: PostDecr((t, c)) -> (tRes, cRes)
         where node := "post decrement";
-              tRes := MetaTypeVar(<newname> "T");
-              cs   := [CEq(t, tRes, node),
+              tTmp := MetaTypeVar(<newname> "T");
+              cs   := [CEq(t, tTmp, node),
                        CSortOf(t, <numerical-types>, node),
-                       CSortOf(tRes, <numerical-operator-return-types>, node)];
-              cRes := <merge-result-sets> ([c], cs)
+                       CSortOf(tTmp, <numerical-operator-return-types>, node)];
+              cRes := <merge-result-sets> ([c], cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
 	// The signed and unsigned shift operators <<, >>, and >>> (§15.19)
 	generate-constraints: LeftShift((t1, c1), (t2, c2))   -> (t1, cRes)
 	   where node := "left shift";
@@ -154,42 +166,46 @@ rules
 	// The integer bitwise operators &, |, and ^ (§15.22.1)
 	generate-constraints: And((t1, c1), (t2, c2))   -> (tRes, cRes)
 	   where node := "bitwise and";
-	         tRes := MetaTypeVar(<newname> "T");
+	         tTmp := MetaTypeVar(<newname> "T");
 	         cs   := [CWidenablePrim(t1, t2, node),
-	                  CWidenedEq(tRes, t1, t2, node),
+	                  CWidenedEq(tTmp, t1, t2, node),
 	                  CSortOf(t1, <conc> (<integral-types>, Boolean()), node),
 	                  CSortOf(t2, <conc> (<integral-types>, Boolean()), node),
-	                  CSortOf(tRes, <numerical-operator-return-types>, node)];
-             cRes := <merge-result-sets> ([c1, c2], cs)
+	                  CSortOf(tTmp, <numerical-operator-return-types>, node)];
+             cRes := <merge-result-sets> ([c1, c2], cs);
+             tRes := <apply-mgu> (tTmp, <mgu> cRes)
 	generate-constraints: Or((t1, c1), (t2, c2))    -> (tRes, cRes)
        where node := "bitwise or";
-             tRes := MetaTypeVar(<newname> "T");
+             tTmp := MetaTypeVar(<newname> "T");
              cs   := [CWidenablePrim(t1, t2, node),
-                      CWidenedEq(tRes, t1, t2, node),
+                      CWidenedEq(tTmp, t1, t2, node),
                       CSortOf(t1, <conc> (<integral-types>, Boolean()), node),
                       CSortOf(t2, <conc> (<integral-types>, Boolean()), node),
-                      CSortOf(tRes, <numerical-operator-return-types>, node)];
-             cRes := <merge-result-sets> ([c1, c2], cs)
+                      CSortOf(tTmp, <numerical-operator-return-types>, node)];
+             cRes := <merge-result-sets> ([c1, c2], cs);
+             tRes := <apply-mgu> (tTmp, <mgu> cRes)
 	generate-constraints: ExcOr((t1, c1), (t2, c2)) -> (tRes, cRes)
        where node := "bitwise exclusive or";
-             tRes := MetaTypeVar(<newname> "T");
+             tTmp := MetaTypeVar(<newname> "T");
              cs   := [CWidenablePrim(t1, t2, node),
-                      CWidenedEq(tRes, t1, t2, node),
+                      CWidenedEq(tTmp, t1, t2, node),
                       CSortOf(t1, <conc> (<integral-types>, Boolean()), node),
                       CSortOf(t2, <conc> (<integral-types>, Boolean()), node),
-                      CSortOf(tRes, <numerical-operator-return-types>, node)];
-             cRes := <merge-result-sets> ([c1, c2], cs)
+                      CSortOf(tTmp, <numerical-operator-return-types>, node)];
+             cRes := <merge-result-sets> ([c1, c2], cs);
+             tRes := <apply-mgu> (tTmp, <mgu> cRes)
 // The conditional operator ? : (§15.25) 
 	generate-constraints: Cond((t1, c1), (t2, c2), (t3, c3)) -> (tRes, cRes)
 	   where node := "conditional expression";
-	         tRes := MetaTypeVar(<newname> "T");
+	         tTmp := MetaTypeVar(<newname> "T");
 	         cs   := [CEq(Boolean(), t1, node),
 	                  CWidenablePrim(t2, t3, node),
-	                  CWidenedEq(tRes, t2, t3, node),
-	                  CSortOf(tRes, <conc> (<numerical-operator-return-types>, Boolean()), node),
+	                  CWidenedEq(tTmp, t2, t3, node),
+	                  CSortOf(tTmp, <conc> (<numerical-operator-return-types>, Boolean()), node),
 	                  CSortOf(t2, <primitive-types>, node),
 	                  CSortOf(t3, <primitive-types>, node)];
-	         cRes := <merge-result-sets> ([c1, c2, c3], cs)
+	         cRes := <merge-result-sets> ([c1, c2, c3], cs);
+             tRes := <apply-mgu> (tTmp, <mgu> cRes)
 // The cast operator, which can convert from an integral value to a value of any specified numeric type (§5.5, §15.16)
 	generate-constraints: CastPrim(t1, (t2, c2)) -> (t1 , cRes) // TODO: what with (bool) true, javac says ok
 	   where node := "primitive cast";
@@ -226,70 +242,79 @@ rules
     // array access
     generate-constraints: ArrayAccess((t1, c1), (t2, c2)) -> (tRes, cRes)
         where node := "array access";
-              tRes := MetaTypeVar(<newname> "ArrayType");
-              cs   := [CEq(t1, ArrayType(tRes), node),
+              tTmp := MetaTypeVar(<newname> "ArrayType");
+              cs   := [CEq(t1, ArrayType(tTmp), node),
                        CEq(t2, Int(), node)];
-              cRes := <merge-result-sets> ([c1, c2], cs)
+              cRes := <merge-result-sets> ([c1, c2], cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
 
     // array init list
     generate-constraints: ArrayInit(initlist) -> (ArrayType(tRes), cRes)
         where node    := "array init";
-              tRes    := MetaTypeVar(<newname> "T");
+              tTmp    := MetaTypeVar(<newname> "T");
               results := <map(Snd)> initlist;
-              cs      := <mk-listeq-pairs; map(\ (p1, p2) -> CEq(<Fst> p1, <Fst> p2, node) \)> [(tRes, None())|initlist];
-              cRes    := <merge-result-sets> (results, cs)
+              cs      := <mk-listeq-pairs; map(\ (p1, p2) -> CEq(<Fst> p1, <Fst> p2, node) \)> [(tTmp, None())|initlist];
+              cRes    := <merge-result-sets> (results, cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
 
     // TODO: is there a way to distinguish them on this level?
     // with array init
     generate-constraints: NewArray(t, dimlist, (t1, c1)) -> (tRes, cRes)
         where node := "new array";
-              tRes := <foldr(!t, \ (x, xs) -> ArrayType(xs) \)> dimlist;
-              cs   := [CEq(tRes, t1, node)];
-              cRes := <merge-result-sets> ([c1], cs)
+              tTmp := <foldr(!t, \ (x, xs) -> ArrayType(xs) \)> dimlist;
+              cs   := [CEq(tTmp, t1, node)];
+              cRes := <merge-result-sets> ([c1], cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
     
     // without array init
     generate-constraints: NewArray(t, dimlist1, dimlist2) -> (tRes, cRes)
         where node := "new array dimlist";
-              tRes := <conc; foldr(!t, \ (x, xs) -> ArrayType(xs) \)> (dimlist1, dimlist2); 
+              tTmp := <conc; foldr(!t, \ (x, xs) -> ArrayType(xs) \)> (dimlist1, dimlist2); 
               cs   := <map(\ Dim((t', _)) -> CEq(Int(), t', node) \)> dimlist1;
-              cRes := <merge-result-sets> (<map(\ Dim((_, c)) -> c \)> dimlist1, cs)
+              cRes := <merge-result-sets> (<map(\ Dim((_, c)) -> c \)> dimlist1, cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
 
     //generate-constraints: UnboundWld(t) -> t
 
     generate-constraints: Field((t, c), x) -> (tRes, cRes) 
         where node := "field access";
-              tRes := MetaTypeVar(<newname> "T");
+              tTmp := MetaTypeVar(<newname> "T");
               cs   := []; // TODO: t is array type or class.
                           //       x is bound to return type
                           //         and x is member of first argument
-              cRes := <merge-result-sets> ([c], cs)
+              cRes := <merge-result-sets> ([c], cs);
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
 
     generate-constraints: SuperField(x) -> (tRes, cRes)
         where node := "super field access";
-              tRes := MetaTypeVar(<newname> "T");
+              tTmp := MetaTypeVar(<newname> "T");
               cs   := []; // TODO: ???
-              cRes := <empty-result>
+              cRes := <empty-result>;
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
 
     //generate-constraints: QSuperField(t, x) ->
     
     generate-constraints: Invoke((t, c), arglist) -> (tRes, cRes)
         where node := "method invokation";
-              tRes := MetaTypeVar(<newname> "T");
+              tTmp := MetaTypeVar(<newname> "T");
               cs   := []; // TODO:  first argument (the method) must support number and types of arguments
-              cRes := <empty-result>
+              cRes := <empty-result>;
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
               
     generate-constraints: Method(x) -> (tRes, cRes)
         where node := "method"; // TODO: declaration?
-              tRes := MetaTypeVar(<newname> "T");
+              tTmp := MetaTypeVar(<newname> "T");
               cs   := []; // TODO: ???
-              cRes := <empty-result>
+              cRes := <empty-result>;
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
 
     // not supporting typeargs (generics)
     generate-constraints: Method((t, c), typeArgs, methodName) -> (tRes, cRes)
         where node := "method"; // TODO: declaration?
-              tRes := MetaTypeVar(<newname> "T");
+              tTmp := MetaTypeVar(<newname> "T");
               cs   := []; // TODO: first argument (the object) must have a method with methodName
-              cRes := <empty-result>
+              cRes := <empty-result>;
+              tRes := <apply-mgu> (tTmp, <mgu> cRes)
 
     //generate-constraints: SuperMethod(typeArgs, methodName) -> <fail>
     //generate-constraints: QSuperMethod(t, typeArgs, methodName) -> <fail>
