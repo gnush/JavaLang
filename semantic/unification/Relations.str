@@ -39,3 +39,22 @@ rules
                                     then id
                                     else string-type; ?t; id
                                    end>
+
+    /**
+     * If x occurs in the term true, else false.
+     */
+    occurs: (x, Boolean()) -> <fail>
+    occurs: (x, Byte()) -> <fail>
+    occurs: (x, Short()) -> <fail>
+    occurs: (x, Int()) -> <fail>
+    occurs: (x, Long()) -> <fail>
+    occurs: (x, Float()) -> <fail>
+    occurs: (x, Double()) -> <fail>
+    occurs: (x, Char()) -> <fail>
+    occurs: (x, ClassOrInterfaceType(_, _)) -> <fail>
+    occurs: (x, ClassType(_, _)) -> <fail>
+    occurs: (x, InterfaceType(_, _)) -> <fail>
+    occurs: (x, ArrayType(t)) -> <occurs> (x, t)
+    occurs: (x, MetaTypeVar(x)) -> <id>
+    occurs: (x, MetaTypeVar(x)) -> <fail>
+    //occurs = debug(!"occurs check: "); fail

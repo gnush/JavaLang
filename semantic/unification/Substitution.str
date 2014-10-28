@@ -1,0 +1,30 @@
+module Substitution
+
+imports
+    include/JavaLang
+    semantic/constraints/Base
+
+rules
+    /**
+     * Substitutes an variable x in type t with type t'.
+     *
+     * @param The identifier to be substituted.
+     * @param The type in which to substitute.
+     * @param The type to be substituted.
+     */
+    tSubst: (_, Boolean(), _) -> Boolean()
+    tSubst: (_, Byte(), _) -> Byte()
+    tSubst: (_, Short(), _) -> Short()
+    tSubst: (_, Int(), _) -> Int()
+    tSubst: (_, Long(), _) -> Long()
+    tSubst: (_, Float(), _) -> Float()
+    tSubst: (_, Double(), _) -> Double()
+    tSubst: (_, Char(), _) -> Char()
+    tSubst: (_, t@ClassOrInterfaceType(_, _), _) -> t // TODO: call tSubst on inner nodes?
+    tSubst: (_, t@ClassType(_, _), _) -> t
+    tSubst: (_, t@InterfaceType(_, _), _) -> t
+    tSubst: (x, ArrayType(t), t') -> ArrayType(<tSubst> (x, t, t'))
+    tSubst: (x, MetaTypeVar(x), t') -> t'
+    tSubst: (x, t@MetaTypeVar(y), t') -> t 
+    
+    tSubst = debug(!"tSubst: "); fail
