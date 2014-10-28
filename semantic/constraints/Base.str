@@ -53,41 +53,6 @@ rules
 				  )
     
     /**
-     * Determines whether a given type is a primitive type or not.
-     */
-    is-primitive-type: t -> <elem> (t, <primitive-types>)
-    is-numerical-type: t -> <elem> (t, <numerical-types>)
-    is-integral-type: t -> <elem> (t, <integral-types>)
-    is-float-type: t -> <elem> (t, <float-types>)
-    
-    // widen primitive types (A Formal Type System for Java, Fig. 14)
-    // TODO: what about chars?
-    widen-prim: (t, t) -> <id>  // TODO: t must be a type
-    widen-prim: (Byte(), Short()) -> <id>
-    widen-prim: (Byte(), Int()) -> <id>
-    widen-prim: (Byte(), Long()) -> <id>
-    widen-prim: (Byte(), Float()) -> <id>
-    widen-prim: (Byte(), Double()) -> <id>
-    widen-prim: (Short(), Int()) -> <id>
-    widen-prim: (Short(), Long()) -> <id>
-    widen-prim: (Short(), Float()) -> <id>
-    widen-prim: (Short(), Double()) -> <id>
-    widen-prim: (Int(), Long()) -> <id>
-    widen-prim: (Int(), Float()) -> <id>
-    widen-prim: (Int(), Double()) -> <id>
-    widen-prim: (Long(), Float()) -> <id>
-    widen-prim: (Long(), Double()) -> <id>
-    widen-prim: (Float(), Double()) -> <id>
-    
-    test-string = !(Int(), Long()); widen-prim-string
-    
-    // t must be a primitive type
-    widen-prim-string: (t, t') -> <if <widen-prim> (t, t')
-                                    then id
-                                    else string-type; ?t; id
-                                   end>
-    
-    /**
      * Merges multiple result sets
      *
      * @param List of result sets to be merged

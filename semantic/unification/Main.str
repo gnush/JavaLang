@@ -4,6 +4,7 @@ imports
     include/JavaLang
     semantic/constraints/Main
     semantic/constraints/Base
+    semantic/unification/Relations
 
 // TODO:
 // - unification
@@ -22,23 +23,36 @@ rules
      */
     unify: ([], mCs, errs, mgu) -> (mCs, errs, mgu)
     
-    unify: ([CSortOf(type, types, node)|cs], mCs, errs, mgu) -> <if <elem> (type, types)
+    unify: ([c@CSortOf(type, types, node)|cs], mCs, errs, mgu) -> <if <elem> (type, types)
                                                                     then <unify> (cs, mCs, errs, mgu)
-                                                                    else <unify> (cs, mCs, [CSortOf(type, types, node)|errs], mgu)
+                                                                    else <unify> (cs, mCs, [c|errs], mgu)
                                                                  end>
-    
-    unify: ([CWidenablePrim(t1, t2, node)|cs], mCs, errs, mgu) -> <if <widen-prim> (t1, t2)
+
+    unify: ([c@CWidenablePrim(t1, t2, node)|cs], mCs, errs, mgu) -> <if <widen-prim> (t1, t2)
                                                                     then <unify> (cs, mCs, errs, mgu)
-                                                                    else <unify> (cs, mCs, [CWidenablePrim(t1, t2, node)|errs], mgu)
+                                                                    else <unify> (cs, mCs, [c|errs], mgu)
                                                                    end>
 
-    unify: ([CWidenablePrimString(t1, t2, node)|cs], mCs, errs, mgu) -> <if <widen-prim-string> (t1, t2)
+    unify: ([c@CWidenablePrimString(t1, t2, node)|cs], mCs, errs, mgu) -> <if <widen-prim-string> (t1, t2)
                                                                             then <unify> (cs, mCs, errs, mgu)
-                                                                            else <unify> (cs, mCs, [CWidenablePrim(t1, t2, node)|errs], mgu)
+                                                                            else <unify> (cs, mCs, [c|errs], mgu)
                                                                          end> 
+
+    unify: ([c@CMultiDeclaration(t, types)|cs], mCs, errs, mgu) -> <unify> (cs, mCs, [c|errs], mgu)
+
+    // trivial
+    unify: ([CEq(t, t, _)|cs], mCs, errs, mgu) -> <unify> (cs, mCs, errs, mgu)
+    // decompose
+    // ???
     
-    unify: ([CMultiDeclaration(t, types)|cs], mCs, errs, mgu) -> <unify> (cs, mCs, [CMultiDeclaration(t, types)|errs], mgu)
+    // clash
     
+    // skip
+    unify: ([c@CEq(MetaTypeVar(t1), MetaTypeVar(t2), _)|cs], mCs, errs, mgu) -> <unify> (cs, [c|mCs], errs, mgu)
+    //orient
+    unify: ([CEq(t1, t2@MetaTypeVar(_), node)|cs], mCs, errs, mgu) -> <unify> ([CEq(t2, t1, node)|cs], mCs, errs, mgu)
+    // occurs check and variable elimination
+
     unify = debug(!"unify: "); fail
 
     
