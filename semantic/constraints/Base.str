@@ -2,6 +2,7 @@ module Base
 
 imports
     include/JavaLang
+    semantic/unification/Main
 
 signature constructors
     CEq : Type * Type * String -> Constraint
@@ -67,11 +68,13 @@ rules
                                          <filter-constraints; flatten-list> results,
                                          <filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results];
               errors        := <filter-errors; flatten-list> results;
-              cRes          := <update-errors> (
-                                <update-binding-declarations> (
-                                    <update-binding-requirements> (
-                                        <update-constraints> (
-                                            <empty-result>, constraints), binding-reqs), binding-decls), errors)
+              (constraints', errors', mgu) := <solve-constraints> constraints;
+              cRes          := <update-mgu> (
+                                <update-errors> (
+                                 <update-binding-declarations> (
+                                  <update-binding-requirements> (
+                                   <update-constraints> (
+                                    <empty-result>, constraints'), binding-reqs), binding-decls), errors'), mgu)
 
     merge-result-sets(local-var-decl-switch): (results, newConstraints) -> cRes
 	    where binding-reqs0  := <filter-binding-requirements; flatten-list; merge-binding-requirements> results;
@@ -92,11 +95,13 @@ rules
                                               else !<filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results
                                            end>]; //<mk-binding-declaration-constraints> (binding-reqs, binding-decls)];
               errors         := <filter-errors; flatten-list> results;
-              cRes           := <update-errors> (
-                                 <update-binding-declarations> (
-                                  <update-binding-requirements> (
-                                   <update-constraints> (
-                                    <empty-result>, constraints), binding-reqs), binding-decls), errors)
+              (constraints', errors', mgu) := <solve-constraints> constraints;
+              cRes           := <update-mgu> (
+                                 <update-errors> (
+                                  <update-binding-declarations> (
+                                   <update-binding-requirements> (
+                                    <update-constraints> (
+                                     <empty-result>, constraints'), binding-reqs), binding-decls), errors'), mgu)
 
     /**
      * Merges multiple result sets
@@ -126,14 +131,14 @@ rules
      * 
      * @type (List(result-set), List(Constraint), List(binding)) -> result-set 
      */              
-    merge-result-sets: (results, newConstraints, newVars) -> cRes
-        where binding-reqs   := <filter-binding-requirements; flatten-list; merge-binding-requirements> results;
-              binding-reqs' := <remove-bound> (newVars, binding-reqs);
-              constraints    := <concat> [newConstraints,
-                                          <filter-constraints; flatten-list> results,
-                                          <filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results];
-              errors         := <filter-errors; flatten-list> results;
-              cRes           := <update-errors> (<update-binding-requirements> (<update-constraints> (<empty-result>, constraints), binding-reqs'), errors)
+    // merge-result-sets: (results, newConstraints, newVars) -> cRes
+    //     where binding-reqs   := <filter-binding-requirements; flatten-list; merge-binding-requirements> results;
+    //           binding-reqs' := <remove-bound> (newVars, binding-reqs);
+    //           constraints    := <concat> [newConstraints,
+    //                                       <filter-constraints; flatten-list> results,
+    //                                       <filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results];
+    //           errors         := <filter-errors; flatten-list> results;
+    //           cRes           := <update-errors> (<update-binding-requirements> (<update-constraints> (<empty-result>, constraints), binding-reqs'), errors)
 
     merge-result-sets = debug(!"merge-result-sets: "); fail
     merge-result-sets(param) = debug(!"merge-result-sets(param): "); fail
@@ -200,19 +205,6 @@ rules
     merge-binding-requirements: [(x, t)|bs] -> [(x, t)|<merge-binding-requirements> bs']
         where bs' := <filter(not(?(x, _)))> bs
     merge-binding-requirements = debug(!"merge-binding-requirements: "); fail
-
-    /**
-     * Makes constraints out of requirements and declarations in an sequential style.
-     * The lists are assumed to be of equal length.
-     */
-    // mk-binding-declaration-constraints: ([], []) -> []
-    // mk-binding-declaration-constraints: (reqs, decls) -> <mk-binding-declaration-constraints'> (reqs, decls, 1)  
-    // mk-binding-declaration-constraints = debug(!"mk-binding-declaration-constraints"); fail
-    // 
-    // mk-binding-declaration-constraints': ([], _, _) -> []
-    // mk-binding-declaration-constraints': ([req|reqs], decls, n) -> 0
-    //     where scope := <take(|n); flatten-list> decls 
-    // mk-binding-declaration-constraints' = debug(!"mk-binding-declaration-constraints'"); fail
 
     test-double-decl = !(<test-double-decl0>, <test-double-decl1>)
     // test-decl0 = ![DeclLocal("x", Int()), DeclLocal("y", Int()), DeclLocal("b0", Boolean()), DeclLocal("b1", Boolean())]; mk-binding-declaration-constraints

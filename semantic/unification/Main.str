@@ -13,6 +13,8 @@ imports
 //  - CWidenedEq
 
 rules
+    solve-constraints: cs -> <unify> (cs, [], [], [])
+    
     /**
      * Unifies a set of constraints.
      * 
