@@ -29,7 +29,7 @@ rules
                                                                     else <unify> (cs, mCs, [c|errs], mgu)
                                                                  end>
 
-    unify: ([c@CWidenablePrim(t1, t2, node)|cs], mCs, errs, mgu) -> <if <widen-prim> (t1, t2)
+    unify: ([c@CWidenablePrim(t1, t2, node)|cs], mCs, errs, mgu) -> <if or(<widen-prim> (t1, t2), <widen-prim> (t2, t1))
                                                                     then <unify> (cs, mCs, errs, mgu)
                                                                     else <unify> (cs, mCs, [c|errs], mgu)
                                                                    end>
@@ -57,12 +57,19 @@ rules
                                                                         then <unify> (cs, mCs, [c|errs], mgu)
                                                                         else <unify> (cs', mCs', errs', mgu')
                                                                      end>
-    where
-        cs'   := <substitute-constraints> (x, t, cs);
-        mCs'  := <substitute-constraints> (x, t, mCs);
-        errs' := <substitute-constraints> (x, t, errs);
-        mgu'  := [(x, t)|<substitute-mgu> (x, t, mgu)]
+	    where
+	        cs'   := <substitute-constraints> (x, t, cs);
+	        mCs'  := <substitute-constraints> (x, t, mCs);
+	        errs' := <substitute-constraints> (x, t, errs);
+	        mgu'  := [(x, t)|<substitute-mgu> (x, t, mgu)]
 
+    unify: ([c@CWidenedEq(t, t1, t2, node)|cs], mCs, errs, mgu) -> <if <widen-prim> (t1, t2)
+                                                                        then <unify> ([CEq(t, t2, node)|cs], mCs, errs, mgu)
+                                                                        else if <widen-prim> (t2, t1)
+                                                                                then <unify> ([CEq(t, t1, node)|cs], mCs, errs, mgu)
+                                                                                else <unify> (cs, mCs, [c|errs], mgu)
+                                                                             end
+                                                                    end>
     // TODO: remove this
     unify: ([c|cs], mCs, errs, mgu) -> <unify> (cs, [c|mCs], errs, mgu)
 
