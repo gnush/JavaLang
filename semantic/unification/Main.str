@@ -39,12 +39,14 @@ rules
                                                                             else <unify> (cs, mCs, [c|errs], mgu)
                                                                          end> 
 
-    unify: ([c@CMultiDeclaration(t, types)|cs], mCs, errs, mgu) -> <unify> (cs, mCs, [c|errs], mgu)
+    unify: ([c@CMultiDeclaration(x, types)|cs], mCs, errs, mgu) -> <unify> (cs, mCs, [c|errs], mgu)
 
     // trivial
     unify: ([CEq(t, t, _)|cs], mCs, errs, mgu) -> <unify> (cs, mCs, errs, mgu)
     // decompose
     // ???
+    unify: ([CEq(ArrayType(t1), ArrayType(t2), node)|cs], mCs, errs, mgu) -> <unify> ([c|cs], mCs, errs, mgu)
+        where c := CEq(t1, t2, node)
     
     // clash
     
