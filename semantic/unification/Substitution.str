@@ -28,3 +28,11 @@ rules
     tSubst: (x, t@MetaTypeVar(y), t') -> t 
     
     tSubst = debug(!"tSubst: "); fail
+    
+    /**
+     * Applies a mgu to a type.
+     */
+    app-mgu: (t, []) -> t
+    app-mgu: (t, [(x, t')|mgu]) -> <app-mgu> (tNew, mgu)
+        where tNew := <tSubst> (x, t, t')
+    app-mgu = debug(!"app-mgu: "); fail
