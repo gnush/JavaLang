@@ -12,27 +12,61 @@ rules
      * @param The type in which to substitute.
      * @param The type to be substituted.
      */
-    tSubst: (_, Boolean(), _) -> Boolean()
-    tSubst: (_, Byte(), _) -> Byte()
-    tSubst: (_, Short(), _) -> Short()
-    tSubst: (_, Int(), _) -> Int()
-    tSubst: (_, Long(), _) -> Long()
-    tSubst: (_, Float(), _) -> Float()
-    tSubst: (_, Double(), _) -> Double()
-    tSubst: (_, Char(), _) -> Char()
-    tSubst: (_, t@ClassOrInterfaceType(_, _), _) -> t // TODO: call tSubst on inner nodes?
-    tSubst: (_, t@ClassType(_, _), _) -> t
-    tSubst: (_, t@InterfaceType(_, _), _) -> t
-    tSubst: (x, ArrayType(t), t') -> ArrayType(<tSubst> (x, t, t'))
-    tSubst: (x, MetaTypeVar(x), t') -> t'
-    tSubst: (x, t@MetaTypeVar(y), t') -> t 
+    substitute-type: (_, Boolean(), _) -> Boolean()
+    substitute-type: (_, Byte(), _) -> Byte()
+    substitute-type: (_, Short(), _) -> Short()
+    substitute-type: (_, Int(), _) -> Int()
+    substitute-type: (_, Long(), _) -> Long()
+    substitute-type: (_, Float(), _) -> Float()
+    substitute-type: (_, Double(), _) -> Double()
+    substitute-type: (_, Char(), _) -> Char()
+    substitute-type: (_, t@ClassOrInterfaceType(_, _), _) -> t // TODO: call tSubst on inner nodes?
+    substitute-type: (_, t@ClassType(_, _), _) -> t
+    substitute-type: (_, t@InterfaceType(_, _), _) -> t
+    substitute-type: (x, ArrayType(t), t') -> ArrayType(<substitute-type> (x, t, t'))
+    substitute-type: (x, MetaTypeVar(x), t') -> t'
+    substitute-type: (x, t@MetaTypeVar(y), t') -> t 
     
-    tSubst = debug(!"tSubst: "); fail
+    substitute-type = debug(!"substitute-type: "); fail
     
     /**
      * Applies a mgu to a type.
      */
-    app-mgu: (t, []) -> t
-    app-mgu: (t, [(x, t')|mgu]) -> <app-mgu> (tNew, mgu)
-        where tNew := <tSubst> (x, t, t')
-    app-mgu = debug(!"app-mgu: "); fail
+    apply-mgu: (t, []) -> t
+    apply-mgu: (t, [(x, t')|mgu]) -> <apply-mgu> (tNew, mgu)
+        where tNew := <substitute-type> (x, t, t')
+    apply-mgu = debug(!"apply-mgu: "); fail
+    
+    /**
+     * Substitute name x with type t in constraint set cs. 
+     */
+    substitute-constraints: (x, t, cs) -> <map(\ c -> <substitute-constraint> (x, t, c) \)> cs
+    substitute-constraints = debug(!"substitute-constraints: "); fail
+    
+    /**
+     * Substitute name x with type t in a constraint c.
+     */
+    substitute-constraint: (x, t, CEq(t1, t2, node)) -> CEq(t1', t2', node)
+        where t1' := <substitute-type> (x, t1, t);
+              t2' := <substitute-type> (x, t2, t)
+    substitute-constraint: (x, t, CWidenablePrim(t1, t2, node)) -> CWidenablePrim(t1', t2', node)
+        where t1' := <substitute-type> (x, t1, t);
+              t2' := <substitute-type> (x, t2, t)
+    substitute-constraint: (x, t, CWidenablePrimString(t1, t2, node)) -> CWidenablePrimString(t1', t2', node)
+        where t1' := <substitute-type> (x, t1, t);
+              t2' := <substitute-type> (x, t2, t)
+    substitute-constraint: (x, t, CWidenedEq(t1, t2, t3, node)) -> CWidenedEq(t1', t2', t3', node)
+        where t1' := <substitute-type> (x, t1, t);
+              t2' := <substitute-type> (x, t2, t);
+              t3' := <substitute-type> (x, t3, t)
+    substitute-constraint: (x, t, CSortOf(type, types, node)) -> CSortOf(type', types, node)
+        where type' := <substitute-type> (x, type, t)
+    substitute-constraint: (x, t, CMultiDeclaration(x, types)) -> CMultiDeclaration(x, types')
+        where types' := <map(\ t1 -> <substitute-type> (x, t1, t) \)> types
+    substitute-constraint = debug(!"substitute-constraint: "); fail
+    
+    /**
+     * Substitute name x with type t in unifier mgu.
+     */
+    substitute-mgu: (x, t, mgu) -> <map(\ (y, t') -> (y, <substitute-type> (x, t, t')) \)> mgu 
+    substitute-mgu = debug(!"substitute-mgu: "); fail

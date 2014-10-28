@@ -53,6 +53,18 @@ rules
     //orient
     unify: ([CEq(t1, t2@MetaTypeVar(_), node)|cs], mCs, errs, mgu) -> <unify> ([CEq(t2, t1, node)|cs], mCs, errs, mgu)
     // occurs check and variable elimination
+    unify: ([c@CEq(MetaTypeVar(x), t, node)|cs], mCs, errs, mgu) -> <if <occurs> (x, t)
+                                                                        then <unify> (cs, mCs, [c|errs], mgu)
+                                                                        else <unify> (cs', mCs', errs', mgu')
+                                                                     end>
+    where
+        cs'   := <substitute-constraints> (x, t, cs);
+        mCs'  := <substitute-constraints> (x, t, mCs);
+        errs' := <substitute-constraints> (x, t, errs);
+        mgu'  := [(x, t)|<substitute-mgu> (x, t, mgu)]
+
+    // TODO: remove this
+    unify: ([c|cs], mCs, errs, mgu) -> <unify> (cs, [c|mCs], errs, mgu)
 
     unify = debug(!"unify: "); fail
 

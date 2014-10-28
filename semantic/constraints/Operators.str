@@ -45,20 +45,20 @@ rules
 // The numerical operators, which result in a value of type int or long:
     // The unary plus and minus operators + and - (§15.15.3, §15.15.4)    
     generate-constraints: Plus((t, c))  -> (tRes, cRes)
-        where tRes := PrimTypeVar(<newname> "T"); 
+        where tRes := MetaTypeVar(<newname> "T"); 
               cs   := [CSortOf(t, <numerical-types>, "unary plus"),
                        CEq(t, tRes, "unary plus"), // TODO: type widening to int if t is 'below'
                        CSortOf(tRes, <numerical-operator-return-types>, "unary plus")];
               cRes := <merge-result-sets> ([c], cs)
     generate-constraints: Minus((t, c)) -> (tRes, cRes)
-        where tRes := PrimTypeVar(<newname> "T"); 
+        where tRes := MetaTypeVar(<newname> "T"); 
               cs   := [CSortOf(t, <numerical-types>, "unary minus"),
                        CEq(t, tRes, "unary minus"),
                        CSortOf(tRes, <numerical-operator-return-types>, "unary minus")];
               cRes := <merge-result-sets> ([c], cs)
     // The multiplicative operators *, /, and % (§15.17)    
     generate-constraints: Mul((t1, c1), (t2, c2)) -> (tRes, cRes)
-        where tRes := PrimTypeVar(<newname> "T");
+        where tRes := MetaTypeVar(<newname> "T");
               cs   := [CWidenablePrim(t1, t2, "multiplication"),
                        CSortOf(t1, <numerical-types>, "multiplication"),
                        CSortOf(t2, <numerical-types>, "multiplication"),
@@ -66,7 +66,7 @@ rules
                        CWidenedEq(tRes, t1, t2, "multiplication")]; // TODO: tRes must be equal to the widened type of t1 and t2
               cRes := <merge-result-sets> ([c1, c2], cs)
     generate-constraints: Div((t1, c1), (t2, c2)) -> (tRes, cRes)
-        where tRes := PrimTypeVar(<newname> "T");
+        where tRes := MetaTypeVar(<newname> "T");
               cs   := [CWidenablePrim(t1, t2, "division"),
                        CSortOf(t1, <numerical-types>, "division"),
                        CSortOf(t2, <numerical-types>, "division"),
@@ -74,7 +74,7 @@ rules
                        CWidenedEq(tRes, t1, t2, "division")]; // TODO: tRes must be equal to the widened type of t1 and t2
               cRes := <merge-result-sets> ([c1, c2], cs)
     generate-constraints: Remain((t1, c1), (t2, c2)) -> (tRes, cRes)
-        where tRes := PrimTypeVar(<newname> "T");
+        where tRes := MetaTypeVar(<newname> "T");
               cs   := [CWidenablePrim(t1, t2, "remainder"),
                        CSortOf(t1, <numerical-types>, "remainder"),
                        CSortOf(t2, <numerical-types>, "remainder"),
@@ -92,7 +92,7 @@ rules
                        CSortOf(tRes, [<string-type>|<numerical-operator-return-types>], node)];
               cRes := <merge-result-sets> ([c1, c2], cs)
     generate-constraints: Minus((t1, c1), (t2, c2)) -> (tRes, cRes)
-        where tRes := PrimTypeVar(<newname> "T");
+        where tRes := MetaTypeVar(<newname> "T");
               node := "binary minus";
               cs   := [CWidenablePrim(t1, t2, node),
                        CWidenedEq(tRes, t1, t2, node),
@@ -103,14 +103,14 @@ rules
     // The increment operator ++, both prefix (§15.15.1) and postfix (§15.14.2)
     generate-constraints: PreIncr((t, c))  -> (tRes, cRes)
         where node := "pre increment";
-              tRes := PrimTypeVar(<newname> "T");
+              tRes := MetaTypeVar(<newname> "T");
               cs   := [CEq(t, tRes, node),
                        CSortOf(t, <numerical-types>, node),
                        CSortOf(tRes, <numerical-operator-return-types>, node)];
               cRes := <merge-result-sets> ([c], cs)
     generate-constraints: PostIncr((t, c)) -> (tRes, cRes)
         where node := "post increment";
-              tRes := PrimTypeVar(<newname> "T");
+              tRes := MetaTypeVar(<newname> "T");
               cs   := [CEq(t, tRes, node),
                        CSortOf(t, <numerical-types>, node),
                        CSortOf(tRes, <numerical-operator-return-types>, node)];
@@ -118,14 +118,14 @@ rules
 	// The decrement operator --, both prefix (§15.15.2) and postfix (§15.14.3)
 	generate-constraints: PreDecr((t, c))  -> (tRes, cRes)
         where node := "pre decrement";
-              tRes := PrimTypeVar(<newname> "T");
+              tRes := MetaTypeVar(<newname> "T");
               cs   := [CEq(t, tRes, node),
                        CSortOf(t, <numerical-types>, node),
                        CSortOf(tRes, <numerical-operator-return-types>, node)];
               cRes := <merge-result-sets> ([c], cs)
     generate-constraints: PostDecr((t, c)) -> (tRes, cRes)
         where node := "post decrement";
-              tRes := PrimTypeVar(<newname> "T");
+              tRes := MetaTypeVar(<newname> "T");
               cs   := [CEq(t, tRes, node),
                        CSortOf(t, <numerical-types>, node),
                        CSortOf(tRes, <numerical-operator-return-types>, node)];
@@ -154,7 +154,7 @@ rules
 	// The integer bitwise operators &, |, and ^ (§15.22.1)
 	generate-constraints: And((t1, c1), (t2, c2))   -> (tRes, cRes)
 	   where node := "bitwise and";
-	         tRes := PrimTypeVar(<newname> "T");
+	         tRes := MetaTypeVar(<newname> "T");
 	         cs   := [CWidenablePrim(t1, t2, node),
 	                  CWidenedEq(tRes, t1, t2, node),
 	                  CSortOf(t1, <conc> (<integral-types>, Boolean()), node),
@@ -163,7 +163,7 @@ rules
              cRes := <merge-result-sets> ([c1, c2], cs)
 	generate-constraints: Or((t1, c1), (t2, c2))    -> (tRes, cRes)
        where node := "bitwise or";
-             tRes := PrimTypeVar(<newname> "T");
+             tRes := MetaTypeVar(<newname> "T");
              cs   := [CWidenablePrim(t1, t2, node),
                       CWidenedEq(tRes, t1, t2, node),
                       CSortOf(t1, <conc> (<integral-types>, Boolean()), node),
@@ -172,7 +172,7 @@ rules
              cRes := <merge-result-sets> ([c1, c2], cs)
 	generate-constraints: ExcOr((t1, c1), (t2, c2)) -> (tRes, cRes)
        where node := "bitwise exclusive or";
-             tRes := PrimTypeVar(<newname> "T");
+             tRes := MetaTypeVar(<newname> "T");
              cs   := [CWidenablePrim(t1, t2, node),
                       CWidenedEq(tRes, t1, t2, node),
                       CSortOf(t1, <conc> (<integral-types>, Boolean()), node),
@@ -182,7 +182,7 @@ rules
 // The conditional operator ? : (§15.25) 
 	generate-constraints: Cond((t1, c1), (t2, c2), (t3, c3)) -> (tRes, cRes)
 	   where node := "conditional expression";
-	         tRes := PrimTypeVar(<newname> "T");
+	         tRes := MetaTypeVar(<newname> "T");
 	         cs   := [CEq(Boolean(), t1, node),
 	                  CWidenablePrim(t2, t3, node),
 	                  CWidenedEq(tRes, t2, t3, node),

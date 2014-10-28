@@ -6,6 +6,7 @@ imports
     semantic/constraints/Literals
     semantic/constraints/Operators
     semantic/constraints/Statements
+    semantic/unification/Main
 
 rules
     /**
@@ -16,3 +17,7 @@ rules
      * @Type ATerm -> (Type, (List(Constraint), List(Binding), ...))
      */
     gen = bottomup(try(generate-constraints))
+    
+    genU: term -> <unify> (cs, [], [], [])
+        where (t, res) := <gen> term;
+              cs  := <constraints> res

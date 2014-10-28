@@ -16,7 +16,7 @@ signature constructors
     CMultiDeclaration : STRING * List(Type) -> Constraint // x is bound to various types in the same scope. (this is an error even if all types are equal) 
     
     MetaTypeVar : String -> Type
-    PrimTypeVar : String -> Type                        // primitive type var
+    // PrimTypeVar : String -> Type                        // primitive type var
     RefTypeVar : String -> Type                         // reference type var
     NullType : Type // is this needed?
 
