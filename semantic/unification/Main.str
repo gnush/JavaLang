@@ -45,6 +45,7 @@ rules
                                                                          end> 
 
     unify: ([c@CMultiDeclaration(x, types)|cs], mCs, errs, mgu) -> <unify> (cs, mCs, [c|errs], mgu)
+    unify: ([c@CSelfDeclaration(x)|cs], mCs, errs, mgu) -> <unify> (cs, mCs, [c|errs], mgu)
 
     // trivial
     unify: ([CEq(t, t, _)|cs], mCs, errs, mgu) -> <unify> (cs, mCs, errs, mgu)

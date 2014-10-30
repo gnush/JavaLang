@@ -61,8 +61,9 @@ rules
               t3' := <substitute-type> (x, t3, t)
     substitute-constraint: (x, t, CSortOf(type, types, node)) -> CSortOf(type', types, node)
         where type' := <substitute-type> (x, type, t)
-    substitute-constraint: (x, t, CMultiDeclaration(x, types)) -> CMultiDeclaration(x, types')
+    substitute-constraint: (x, t, CMultiDeclaration(y, types)) -> CMultiDeclaration(y, types')
         where types' := <map(\ t1 -> <substitute-type> (x, t1, t) \)> types
+    substitute-constraint: (x, t, CSelfDeclaration(y)) -> CSelfDeclaration(y)
     substitute-constraint = debug(!"substitute-constraint: "); fail
     
     /**

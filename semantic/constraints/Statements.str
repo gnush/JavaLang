@@ -51,7 +51,14 @@ rules
               cRes := <add-binding-declaration> (<empty-result>, (x, tRes))
 
     generate-constraints: VarDec(x, (t, c)) -> (t, cRes)
-        where cRes := <add-binding-declaration> (c, (x, t))
+        where cs   := <mk-self-declaration-constraints> (x, c);
+              cRes := <add-constraints> (<add-binding-declaration> (c, (x, t)), cs)
+
+    mk-self-declaration-constraints: (x, res) -> <if equal(|<length> (vars), 0)
+                                                    then ![]
+                                                    else ![CSelfDeclaration(x)]
+                                                  end>
+        where vars := <binding-requirements; filter(?(x, _))> res
 
     generate-constraints: While((tExpr, cExpr), (tStm, cStm)) -> (tRes, cRes)
         where node := "While";

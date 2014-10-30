@@ -14,7 +14,8 @@ signature constructors
     CSortOf : Type * List(Type) * STRING -> Constraint           // lhs Type must be one of rhs Types
     
     // failure constraints
-    CMultiDeclaration : STRING * List(Type) -> Constraint // x is bound to various types in the same scope. (this is an error even if all types are equal) 
+    CMultiDeclaration : STRING * List(Type) -> Constraint // x is bound to various types in the same scope. (this is an error even if all types are equal)
+    CSelfDeclaration : STRING -> Constraint // variable x is initialized using itself. (int x = x) 
     
     MetaTypeVar : String -> Type
     // PrimTypeVar : String -> Type                        // primitive type var
@@ -74,7 +75,7 @@ rules
                                  <update-binding-declarations> (
                                   <update-binding-requirements> (
                                    <update-constraints> (
-                                    <empty-result>, constraints'), binding-reqs), binding-decls), errors'), mgu)
+                                    <empty-result>, constraints'), binding-reqs), binding-decls), <conc> (errors, errors')), mgu)
 
     merge-result-sets(local-var-decl-switch): (results, newConstraints) -> cRes
 	    where binding-reqs0  := <filter-binding-requirements; flatten-list; merge-binding-requirements> results;
@@ -101,7 +102,7 @@ rules
                                   <update-binding-declarations> (
                                    <update-binding-requirements> (
                                     <update-constraints> (
-                                     <empty-result>, constraints'), binding-reqs), binding-decls), errors'), mgu)
+                                     <empty-result>, constraints'), binding-reqs), binding-decls), <conc> (errors, errors')), mgu)
 
     /**
      * Merges multiple result sets
