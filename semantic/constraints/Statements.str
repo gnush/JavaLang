@@ -6,8 +6,8 @@ imports
 
 // TODO
 // - Optional syntax parameters like in return    
-// - variable declaration
-//    -  Bug: int i = i; should be some error
+// - variable declaration/block statements
+//    -  Bug: i; int i; is not detectet. (it is when some other statement is between (i; j; int i;))
 // - Handle abrubt completion
 
 rules

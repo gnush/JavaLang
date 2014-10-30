@@ -58,3 +58,29 @@ rules
     occurs: (x, MetaTypeVar(x)) -> <id>
     occurs: (x, MetaTypeVar(x)) -> <fail>
     //occurs = debug(!"occurs check: "); fail
+    
+    /**
+     * Checks wheter a constraint contains some typevars as arguments.
+     */
+    constraint-contains-typevars: c#(args) -> <if not(equal(|<length> typevars, 0))
+                                        then id
+                                        else fail
+                                    end>
+        where typevars := <filter(\ c1#(_) -> <equal> (c1, "MetaTypeVar") \)> args
+
+    /**
+     * Checks wheter a type is a typevar or contains some.
+     */
+    contains-typevars: Boolean() -> <fail>
+    contains-typevars: Byte() -> <fail>
+    contains-typevars: Short() -> <fail>
+    contains-typevars: Int() -> <fail>
+    contains-typevars: Long() -> <fail>
+    contains-typevars: Float() -> <fail>
+    contains-typevars: Double() -> <fail>
+    contains-typevars: Char() -> <fail>
+    contains-typevars: ClassOrInterfaceType(_, _) -> <fail>
+    contains-typevars: ClassType(_, _) -> <fail>
+    contains-typevars: InterfaceType(_, _) -> <fail>
+    contains-typevars: ArrayType(t) -> <contains-typevars> t
+    contains-typevars: MetaTypeVar(_) -> <id> 
