@@ -21,3 +21,5 @@ rules
     genU: term -> (t, <solve-constraints> cs)
         where (t, res) := <gen> term;
               cs  := <constraints> res
+
+    type = gen; ?(t, _); !t

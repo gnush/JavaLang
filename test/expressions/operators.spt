@@ -1,0 +1,47 @@
+module operatorTests
+
+language JavaLang
+
+test boolean0 [[
+    true && false
+]] run type to Boolean()
+
+test boolean1 [[
+    !true || (!false && true)
+]] run type to Boolean()
+
+test integral0 [[
+    50321l
+]] run type to Long()
+
+test integral1 [[
+    2142l + 1201
+]] run type to Long()
+
+test decimal0 [[
+    423456.0f
+]] run type to Float()
+
+test decimal1 [[
+    23456.5f * 1.0045423d
+]] run type to Double()
+
+test cast0 [[
+    (short) 21423l
+]] run type to Short()
+
+test cast1 [[
+    (short) 1204l + (double) 231
+]] run type to Double()
+
+test operators [[
+    -10 + 214l * 10.01f / 2.02d - (short) 10 
+]] run type to Double()
+
+test string0 [[
+    "foo"
+]] run type to ClassOrInterfaceType(TypeName(PackageOrTypeName(PackageOrTypeName(Id("java")), Id("lang")), Id("String")) , None())
+
+test string1 [[
+    "foo"+1+"bar"+2+3+'c'+12.0f
+]] run type to ClassOrInterfaceType(TypeName(PackageOrTypeName(PackageOrTypeName(Id("java")), Id("lang")), Id("String")) , None())
