@@ -94,7 +94,7 @@ rules
               cs   := [CWidenablePrimString(t1, t2, node),
                        CWidenedEq(tTmp, t1, t2, node), // TODO: new string constraint needed?
                        CSortOf(t1, [<string-type>|<numerical-types>], node),
-                       CSortOf(t2, <numerical-types>, node),
+                       CSortOf(t2, [<string-type>|<numerical-types>], node),
                        CSortOf(tTmp, [<string-type>|<numerical-operator-return-types>], node)];
               cRes := <merge-result-sets> ([c1, c2], cs);
               tRes := <apply-mgu> (tTmp, <mgu> cRes)

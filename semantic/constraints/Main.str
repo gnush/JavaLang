@@ -18,6 +18,6 @@ rules
      */
     gen = bottomup(try(generate-constraints))
     
-    genU: term -> <unify> (cs, [], [], [])
+    genU: term -> (t, <solve-constraints> cs)
         where (t, res) := <gen> term;
               cs  := <constraints> res
