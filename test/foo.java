@@ -9,7 +9,7 @@ public class A{
         this.field = field;
     }
     
-    public int getField(){
-        return field;
+    public int getField(Obj o){
+        return o.field;
     }
 }
