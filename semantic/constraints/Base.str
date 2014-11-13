@@ -29,10 +29,10 @@ rules
     /**
      * Provides an empty result set for constraint generation.
      *
-     *        constraints, bindings for variables, bindings for classes, mgu, errornous constraints
+     *        constraints, binding-requirements, binding-declarations, current class, classes, mgu, errornous constraints
      * @type (List(Constraint), List(Binding), List(Classnames), List((STRING, Type)), List(Constraints))
      */
-    empty-result = !([], [], [], [], [])
+    empty-result = !([], [], [], [], [], [], [])
     
     /**
      * Provides a list with primitive Types
@@ -242,28 +242,34 @@ rules
         where c := <filter(?(x, _) ; \ (_, t') -> CEq(t, t', <conc-strings> ("variable binding of ", <write-to-string> x)) \)> ys
     isectConstraints = debug(!"isectConstraints: "); fail
 
-    constraints:          (cs,  _,    _,   _,    _) -> cs
-    binding-requirements: (_,  bs,    _,   _,    _) -> bs
-    binding-declarations: (_,   _, dcls,   _,    _) -> dcls
-    mgu:                  (_,   _,    _, mgu,    _) -> mgu
-    errors:               (_,   _,    _,   _, errs) -> errs
+    constraints:          (cs,  _,    _,   _,    _,    _,   _) -> cs
+    binding-requirements: ( _, bs,    _,   _,    _,    _,   _) -> bs
+    binding-declarations: ( _,  _, dcls,   _,    _,    _,   _) -> dcls
+    mgu:                  ( _,  _,    _, mgu,    _,    _,   _) -> mgu
+    errors:               ( _,  _,    _,   _, errs,    _,   _) -> errs
+    current-class:        ( _,  _,    _,   _,    _, crnt,   _) -> crnt
+    classes:              ( _,  _,    _,   _,    _,    _, cls) -> cls
 
     filter-constraints = map(constraints)
     filter-binding-requirements = map(binding-requirements)
     filter-binding-declarations = map(binding-declarations)
     filter-mgu = map(mgu)
     filter-errors = map(errors)
+    filter-current-classes = map(current-class)
+    filter-classes = map(classes)
     
-    update-constraints:          (( _, bs, dcls, mgu, errs), cs)     -> (cs, bs, dcls, mgu, errs)
-    update-binding-requirements: ((cs,  _, dcls, mgu, errs), bs)     -> (cs, bs, dcls, mgu, errs)
-    update-binding-declarations: ((cs, bs,    _, mgu, errs), dcls)   -> (cs, bs, dcls, mgu, errs)
-    update-mgu:                  ((cs, bs, dcls,   _, errs), mgu)    -> (cs, bs, dcls, mgu, errs)
-    update-errors:               ((cs, bs, dcls, mgu,    _), errs)   -> (cs, bs, dcls, mgu, errs)
+    update-constraints:          (( _, bs, dcls, mgu, errs, crnt, cls), cs)     -> (cs, bs, dcls, mgu, errs, crnt, cls)
+    update-binding-requirements: ((cs,  _, dcls, mgu, errs, crnt, cls), bs)     -> (cs, bs, dcls, mgu, errs, crnt, cls)
+    update-binding-declarations: ((cs, bs,    _, mgu, errs, crnt, cls), dcls)   -> (cs, bs, dcls, mgu, errs, crnt, cls)
+    update-mgu:                  ((cs, bs, dcls,   _, errs, crnt, cls), mgu)    -> (cs, bs, dcls, mgu, errs, crnt, cls)
+    update-errors:               ((cs, bs, dcls, mgu,    _, crnt, cls), errs)   -> (cs, bs, dcls, mgu, errs, crnt, cls)
+    update-current-class:        ((cs, bs, dcls, mgu, errs,    _, cls), crnt)   -> (cs, bs, dcls, mgu, errs, crnt, cls)
+    update-classes:              ((cs, bs, dcls, mgu, errs, crnt,   _), cls)    -> (cs, bs, dcls, mgu, errs, crnt, cls)
     
-    add-constraint:          ((cs, bs, dcls, mgu, errs), constraint)  -> ([constraint|cs], bs, dcls, mgu, errs)
-    add-binding-requirement: ((cs, bs, dcls, mgu, errs), binding)     -> (cs, [binding|bs], dcls, mgu, errs)
-    add-binding-declaration: ((cs, bs, dcls, mgu, errs), declaration) -> (cs, bs, [declaration|dcls], mgu, errs)
-    add-error:               ((cs, bs, dcls, mgu, errs), error)       -> (cs, bs, dcls, mgu, [error|errs])
+    add-constraint:          ((cs, bs, dcls, mgu, errs, crnt, cls), constraint)  -> ([constraint|cs], bs, dcls, mgu, errs, crnt, cls)
+    add-binding-requirement: ((cs, bs, dcls, mgu, errs, crnt, cls), binding)     -> (cs, [binding|bs], dcls, mgu, errs, crnt, cls)
+    add-binding-declaration: ((cs, bs, dcls, mgu, errs, crnt, cls), declaration) -> (cs, bs, [declaration|dcls], mgu, errs, crnt, cls)
+    add-error:               ((cs, bs, dcls, mgu, errs, crnt, cls), error)       -> (cs, bs, dcls, mgu, [error|errs], crnt, cls)
     
     add-constraints: (res, constraints) -> <update-constraints> (res, <conc> (constraints, cs)) 
         where cs := <constraints> res

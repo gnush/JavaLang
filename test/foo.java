@@ -1,2 +1,15 @@
-for(int i=0; i<10; i++)
-    i++;
+public class A{
+    private int field;
+    
+    public A(){
+        field = 0;
+    }
+    
+    public A(int field){
+        this.field = field;
+    }
+    
+    public int getField(){
+        return field;
+    }
+}

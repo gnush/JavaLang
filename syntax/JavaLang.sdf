@@ -5,6 +5,7 @@ exports
   context-free start-symbols
     Expr
     Stm
+    ClassDec
 
 %%   context-free syntax
 %%      -> Start {cons("Dummy")}
