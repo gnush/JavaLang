@@ -25,10 +25,10 @@ rules
 
     mk-classpath-bindings: ([classname], field, tField) -> (bindings, [classReq])
         where tClass   := MetaTypeVar(<newname> "T");
-              bindings := [(classname, tClass), (field, tField)];
+              bindings := [(classname, tClass)];
               classReq := ClassHasField(tClass, field, tField)
     
-    mk-classpath-bindings: ([package, classOrPackage|rst], field, tField) -> <fail>
+    mk-classpath-bindings: ([package, classOrPackage, foo|rst], field, tField) -> <fail>
         where tPackage := MetaTypeVar(<newname> "T");
               tClassOr := MetaTypeVar(<newname> "T")
               

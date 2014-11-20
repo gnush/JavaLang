@@ -10,6 +10,9 @@ public class A{
     }
     
     public int getField(Obj o){
+        new A().field;
+        A a = new A();
+        a.field;
         return o.field;
     }
 }
