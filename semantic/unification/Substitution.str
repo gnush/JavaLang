@@ -71,3 +71,14 @@ rules
      */
     substitute-mgu: (x, t, mgu) -> <map(\ (y, t') -> (y, <substitute-type> (x, t, t')) \)> mgu 
     substitute-mgu = debug(!"substitute-mgu: "); fail
+    
+    /**
+     * Substitute name x with type t in binding.
+     */
+    substitute-binding: (typename, t, (var, t1)) -> (var, <substitute-type> (typename, t1, t))
+    
+    substitute-bindings: (x, t, bs) -> <map(\ b -> <substitute-binding> (x, t, b) \)> bs
+    
+    substitute-bindings-with-mgu: ([], bs) -> bs
+    substitute-bindings-with-mgu: ([(x, t)|mgu], bs) -> <substitute-bindings-with-mgu> (mgu, bs')
+        where bs' := <substitute-bindings> (x, t, bs)

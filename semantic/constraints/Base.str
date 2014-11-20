@@ -3,6 +3,7 @@ module Base
 imports
     include/JavaLang
     semantic/unification/Main
+    semantic/unification/Substitution
 
 signature constructors
     CEq : Type * Type * String -> Constraint
@@ -15,7 +16,10 @@ signature constructors
     
     // failure constraints
     CMultiDeclaration : STRING * List(Type) -> Constraint // x is bound to various types in the same scope. (this is an error even if all types are equal)
-    CSelfDeclaration : STRING -> Constraint // variable x is initialized using itself. (int x = x) 
+    CSelfDeclaration : STRING -> Constraint // variable x is initialized using itself. (int x = x)
+    
+    // for class specific stuff
+    ClassHasField : Type * STRING * Type -> ClassBinding // class with type c hast field x with type t 
     
     MetaTypeVar : String -> Type
     // PrimTypeVar : String -> Type                        // primitive type var
@@ -70,13 +74,17 @@ rules
                                          <filter-binding-requirements; mk-isectCallList; map(isectConstraints); flatten-list> results];
               errors        := <filter-errors; flatten-list> results;
               (constraints', errors', mgu) := <solve-constraints> constraints;
+              binding-reqs'  := <substitute-bindings-with-mgu> (mgu, binding-reqs);
+              binding-decls' := <substitute-bindings-with-mgu> (mgu, binding-decls);
               cRes          := <update-mgu> (
                                 <update-errors> (
                                  <update-binding-declarations> (
                                   <update-binding-requirements> (
                                    <update-constraints> (
-                                    <empty-result>, constraints'), binding-reqs), binding-decls), <conc> (errors, errors')), mgu)
+                                    <empty-result>, constraints'), binding-reqs'), binding-decls'), <conc> (errors, errors')), mgu)
 
+
+// TODO: apply mgu to bindings and stuff 
     merge-result-sets(local-var-decl-switch): (results, newConstraints) -> cRes
 	    where binding-reqs0  := <filter-binding-requirements; flatten-list; merge-binding-requirements> results;
 	          binding-decls0 := <filter-binding-declarations; flatten-list> results; // TODO: remove multi bound variables to avoid the generation of duplicate constraints (preserve on of them)
@@ -97,12 +105,14 @@ rules
                                            end>]; //<mk-binding-declaration-constraints> (binding-reqs, binding-decls)];
               errors         := <filter-errors; flatten-list> results;
               (constraints', errors', mgu) := <solve-constraints> constraints;
+              binding-reqs'  := <substitute-bindings-with-mgu> (mgu, binding-reqs);
+              binding-decls' := <substitute-bindings-with-mgu> (mgu, binding-decls);
               cRes           := <update-mgu> (
                                  <update-errors> (
                                   <update-binding-declarations> (
                                    <update-binding-requirements> (
                                     <update-constraints> (
-                                     <empty-result>, constraints'), binding-reqs), binding-decls), <conc> (errors, errors')), mgu)
+                                     <empty-result>, constraints'), binding-reqs'), binding-decls'), <conc> (errors, errors')), mgu)
 
     /**
      * Merges multiple result sets
@@ -270,6 +280,8 @@ rules
     add-binding-requirement: ((cs, bs, dcls, mgu, errs, crnt, cls), binding)     -> (cs, [binding|bs], dcls, mgu, errs, crnt, cls)
     add-binding-declaration: ((cs, bs, dcls, mgu, errs, crnt, cls), declaration) -> (cs, bs, [declaration|dcls], mgu, errs, crnt, cls)
     add-error:               ((cs, bs, dcls, mgu, errs, crnt, cls), error)       -> (cs, bs, dcls, mgu, [error|errs], crnt, cls)
+    add-current-class:       ((cs, bs, dcls, mgu, errs, crnt, cls), current)     -> (cs, bs, dcls, mgu, errs, [current|crnt], cls)
+    add-classes:             ((cs, bs, dcls, mgu, errs, crnt, cls), class)       -> (cs, bs, dcls, mgu, errs, crnt, [class|cls])
     
     add-constraints: (res, constraints) -> <update-constraints> (res, <conc> (constraints, cs)) 
         where cs := <constraints> res

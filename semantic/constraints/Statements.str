@@ -17,13 +17,13 @@ rules
     generate-constraints: If((tCond, cCond), (tBody, cBody)) -> (Unit(), cRes)
         where node := "If/2";
               cs   := [CEq(tCond, Boolean(), node)];
-              cRes := <merge-result-sets> ([cCond, cBody], cs)
+              cRes := <merge-result-sets(false)> ([cCond, cBody], cs)
     
     // TODO: constraints for tThen, tElse. equal, Unit?
     generate-constraints: If((tCond, cCond), (tThen, cThen), (tElse, cElse)) -> (Unit(), cRes)
         where node := "If/3";
               cs   := [CEq(tCond, Boolean(), node)];
-              cRes := <merge-result-sets> ([cCond, cThen, cElse], cs)
+              cRes := <merge-result-sets(false)> ([cCond, cThen, cElse], cs)
     
     generate-constraints: Block(results) -> (Unit(), cRes)
         where node := "Block";
@@ -64,13 +64,13 @@ rules
         where node := "While";
               cs   := [CEq(tExpr, Boolean(), node)];
               tRes := Unit();
-              cRes := <merge-result-sets> ([cExpr, cStm], cs)
+              cRes := <merge-result-sets(false)> ([cExpr, cStm], cs)
 
     generate-constraints: DoWhile((tStm, cStm), (tExpr, cExpr)) -> (tRes, cRes)
         where node := "DoWhile";
               cs   := [CEq(tExpr, Boolean(), node)];
               tRes := Unit();
-              cRes := <merge-result-sets> ([cExpr, cStm], cs)
+              cRes := <merge-result-sets(false)> ([cExpr, cStm], cs)
     
     generate-constraints: For((tVar, cVar), Some((tExpr, cExpr)), updateExprs, (tStm, cStm)) -> (tRes, cRes)
         where node := "BasicFor";
